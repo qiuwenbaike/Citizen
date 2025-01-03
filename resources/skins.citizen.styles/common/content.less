@@ -29,7 +29,7 @@
 /**
  * Main page-specific styles
  */
-.page-Main_Page {
+.page-Main_Page.action-view {
 	// Disable sticky header
 	#citizen-page-header-sticky-sentinel {
 		display: none;
@@ -45,6 +45,11 @@
 		&-inner {
 			justify-content: flex-end;
 		}
+	}
+
+	#contentSub,
+	.citizen-page-heading {
+		display: none;
 	}
 
 	.citizen-body-container {

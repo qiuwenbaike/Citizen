@@ -25,11 +25,8 @@
 	// Fallback text button if extensions register those
 	a {
 		font-size: var( --font-size-small );
+		color: var( --color-base );
 		border-radius: var( --border-radius-base );
-
-		&::before {
-			filter: var( --filter-invert );
-		}
 
 		&:hover {
 			background-color: var( --background-color-button-quiet--hover );
@@ -37,6 +34,14 @@
 
 		&:active {
 			background-color: var( --background-color-button-quiet--hover );
+		}
+
+		&.citizen-ui-icon {
+			width: @min-size-interactive-pointer;
+			height: @min-size-interactive-pointer;
+			padding: calc( ( @min-size-interactive-pointer - var( --size-icon ) ) / 2 );
+			font-size: 0;
+			text-indent: -9999px; // Hide text
 		}
 	}
 }
