@@ -8,8 +8,8 @@
 // Header card popups
 .mixin-citizen-header-card(@position ) {
 	position: absolute;
+	top: var( --header-size );
 	right: 0;
-	bottom: 100%;
 	left: 0;
 	max-height: var( --header-card-maxheight );
 
@@ -24,17 +24,8 @@
 	}
 
 	@media ( min-width: @min-width-breakpoint-desktop ) {
-		right: unset;
-		left: 100%;
-
-		& when (@position =start) {
-			top: 0;
-			bottom: unset;
-		}
-
-		& when (@position =end) {
-			bottom: 0;
-		}
+		bottom: unset;
+		left: unset;
 	}
 }
 

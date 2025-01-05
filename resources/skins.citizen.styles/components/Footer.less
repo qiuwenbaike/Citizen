@@ -1,12 +1,10 @@
 .citizen-footer {
 	padding: var( --space-xxl ) var( --padding-page );
-	margin-top: var( --space-xxl );
-	// Reserve space for header
-	margin-bottom: var( --header-size );
 	clear: both;
 	font-size: var( --font-size-small );
 	color: var( --color-subtle );
 	background-color: var( --color-surface-2 );
+	border-top: var( --border-width-base ) solid var( --border-color-base );
 	direction: ltr;
 	contain: content;
 
@@ -15,19 +13,43 @@
 		margin-inline: auto;
 	}
 
+	&__pageinfo {
+		display: flex;
+		flex-flow: column wrap;
+
+		&-item {
+			display: flex;
+			flex-direction: column;
+			gap: var( --space-xs );
+			padding: var( --space-xxs ) var( --space-md );
+		}
+
+		&-label {
+			color: var( --color-subtle );
+			letter-spacing: 0.05em;
+		}
+	}
+
 	&__content,
 	&__bottom {
 		display: flex;
 		flex-wrap: wrap;
 		gap: var( --space-md );
 		justify-content: space-between;
-		padding: var( --space-md ) 0;
+
+		a {
+			font-weight: var( --font-weight-medium );
+		}
+	}
+
+	&__content {
+		padding: var( --space-md );
 	}
 
 	&__bottom {
 		align-items: center;
+		padding: 0 var( --space-md );
 		margin-inline: auto;
-		border-top: var( --border-width-base ) solid var( --border-color-base );
 	}
 
 	&__siteinfo {
@@ -44,7 +66,6 @@
 
 	a {
 		font-weight: var( --font-weight-medium );
-		color: var( --color-emphasized );
 	}
 
 	ul {
@@ -61,31 +82,16 @@
 #footer {
 	&-places {
 		ul {
-			flex-direction: column;
+			display: flex;
+			flex-direction: row;
+			gap: var( --space-xs ) var( --space-md );
 		}
 
 		a {
 			display: block;
-			padding: var( --space-xs ) var( --space-md );
+			padding: var( --space-xs ) 0;
 			border-radius: var( --border-radius-base );
-
-			&:hover {
-				background-color: var( --background-color-button-quiet--hover );
-			}
-
-			&:active {
-				background-color: var( --background-color-button-quiet--active );
-			}
-
-			&:hover,
-			&:focus {
-				text-decoration: none;
-			}
 		}
-	}
-
-	&-tagline {
-		padding: var( --space-xs ) 0;
 	}
 
 	&-icons {

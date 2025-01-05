@@ -50,11 +50,11 @@
 }
 
 /* ve.ce.RootNode.css */
-.ve-ce-attachedRootNode::selection,
-.ve-ce-attachedRootNode *::selection {
-	color: var( --color-inverted-primary );
-	background-color: var( --color-progressive );
-}
+// .ve-ce-attachedRootNode::selection,
+// .ve-ce-attachedRootNode *::selection {
+// 	color: var( --color-inverted-primary );
+// 	background-color: var( --color-progressive );
+// }
 
 /* ve.ce.CommentNode.css */
 .ve-ce-commentNode > .ve-ce-focusableNode-invisibleIcon.oo-ui-iconElement .oo-ui-labelElement-label {
@@ -366,13 +366,18 @@
 /* Responsive handling */
 .ve-init-mw-desktopArticleTarget-toolbar {
 	> .oo-ui-toolbar-bar {
+		position: fixed;
+		top: var( --header-size );
+		right: 0;
+		left: 0;
+		z-index: ~'calc( @{z-index-toolbar} + 2 )' !important;
+
 		> .oo-ui-toolbar-tools {
 			// Needed to hide overflow tools
 			background: var( --color-surface-0 );
 
 			&:first-child {
 				display: inline-block;
-				max-width: ~'calc( 100% - 250px )';
 				white-space: nowrap;
 			}
 		}
@@ -401,12 +406,18 @@
 }
 
 /* Hide less useful buttons on small viewport */
-@media ( max-width: @max-width-breakpoint-tablet ) {
-	.ve-ui-toolbar-group {
-		&-format,
-		&-style,
-		&-help {
-			display: none;
-		}
-	}
+// @media ( max-width: @max-width-breakpoint-tablet ) {
+// 	.ve-ui-toolbar-group {
+// 		&-format,
+// 		&-style,
+// 		&-help {
+// 			display: none;
+// 		}
+// 	}
+// }
+
+.citizen-page-header {
+	pointer-events: all !important;
+	user-select: all !important;
+	opacity: 1 !important;
 }

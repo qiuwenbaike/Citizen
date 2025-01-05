@@ -1,7 +1,9 @@
 .page-actions {
 	display: flex;
+	flex-wrap: wrap;
 	gap: var( --space-xxs );
 	align-items: center;
+	justify-content: flex-end;
 
 	// TODO: Merge this with header__item
 	&__item {
@@ -11,16 +13,16 @@
 	.citizen-menu {
 		&__card {
 			position: absolute;
+			top: 100%;
 			right: ~'calc( var( --space-xs ) * -1 )'; // counteract margin
 			display: grid;
 			gap: var( --space-xs );
 			max-height: 60vh;
 			padding: var( --space-xs ) 0;
-			transform-origin: var( --transform-origin-offset-end ) var( --transform-origin-offset-end );
+			transform-origin: var( --transform-origin-offset-end ) var( --transform-origin-offset-start );
 
-			@media ( min-width: @min-width-breakpoint-desktop ) {
-				top: 100%;
-				transform-origin: var( --transform-origin-offset-end ) var( --transform-origin-offset-start );
+			&#citizen-languages__card {
+				right: auto;
 			}
 		}
 	}
@@ -142,6 +144,21 @@
 	}
 }
 
+// Additional buttons
+#Wikiplus-Edit-TopBtn,
+#ca-redirect,
+#ca-masseditregex {
+	> a::before {
+		width: var( --size-icon );
+		height: var( --size-icon );
+		content: '';
+		background-repeat: no-repeat;
+		background-position: center;
+		background-size: var( --size-icon );
+		transition-property: opacity;
+	}
+}
+
 .client-nojs {
 	// Hide share button completely when JS is not supported
 	// Since it won't do anything
@@ -150,43 +167,50 @@
 	}
 }
 
-// To avoid more menu from overflow in narrow screen
-@media ( max-width: @max-width-breakpoint-tablet ) {
-	.page-actions {
-		position: fixed;
-		right: 0;
-		bottom: ~'calc( var( --header-size ) + var( --space-xs ) )';
-		height: var( --toolbar-size );
-		margin: var( --space-xs );
-		background: var( --color-surface-1 );
-		border: 1px solid var( --border-color-base );
-		border-radius: var( --border-radius-medium );
-		box-shadow: var( --box-shadow-drop-xx-large );
-
-		:not( .citizen-menu__card ) .mw-list-item {
-			--size-icon: 1rem;
-		}
-
-		> .mw-portlet li > a {
-			height: var( --toolbar-size );
-		}
-
-		&__item {
-			position: unset;
-		}
-
-		.citizen-menu__card {
-			bottom: 100%;
-			/* Fix card width issue when the page tool bar is narrow */
-			width: max-content;
-		}
-	}
-
-	.citizen-page-languages .citizen-dropdown-summary::after {
-		// Blend with background
-		background: var( --color-surface-1 );
+.ns-special {
+	// Hide share button completely when we are not on article pages
+	.citizen-share {
+		display: none;
 	}
 }
+
+// // To avoid more menu from overflow in narrow screen
+// @media ( max-width: @max-width-breakpoint-tablet ) {
+// 	.page-actions {
+// 		position: fixed;
+// 		right: 0;
+// 		bottom: ~'calc( var( --header-size ) + var( --space-xs ) )';
+// 		height: var( --toolbar-size );
+// 		margin: var( --space-xs );
+// 		background: var( --color-surface-1 );
+// 		border: 1px solid var( --border-color-base );
+// 		border-radius: var( --border-radius-medium );
+// 		box-shadow: var( --box-shadow-drop-xx-large );
+
+// 		:not( .citizen-menu__card ) .mw-list-item {
+// 			--size-icon: 1rem;
+// 		}
+
+// 		> .mw-portlet li > a {
+// 			height: var( --toolbar-size );
+// 		}
+
+// 		&__item {
+// 			position: unset;
+// 		}
+
+// 		.citizen-menu__card {
+// 			bottom: 100%;
+// 			/* Fix card width issue when the page tool bar is narrow */
+// 			width: max-content;
+// 		}
+// 	}
+
+// 	.citizen-page-languages .citizen-dropdown-summary::after {
+// 		// Blend with background
+// 		background: var( --color-surface-1 );
+// 	}
+// }
 
 @media ( min-width: @min-width-breakpoint-desktop ) {
 	.page-actions {

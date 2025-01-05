@@ -217,8 +217,8 @@
 	.citizen-toc {
 		position: -webkit-sticky;
 		position: sticky;
-		top: var( --height-sticky-header );
-		max-height: ~'calc( 100vh - var( --height-sticky-header ) )';
+		top: ~'calc( 2.5 * var( --height-sticky-header ) )';
+		max-height: ~'calc( 100vh - 2.5 * var( --height-sticky-header ) )';
 		padding: var( --space-xs ) 0;
 		overflow-y: auto;
 		overscroll-behavior: contain;
@@ -246,5 +246,40 @@
 		.citizen-dropdown-summary {
 			display: none;
 		}
+	}
+}
+
+// Legacy TOC
+.toc,
+#toc {
+	max-width: 20vw;
+	padding: 1rem;
+	margin: 1rem auto 1rem 0;
+	background: var( --color-surface-2 );
+	border: 1px solid var( --color-surface-4 );
+
+	@media ( max-width: @max-width-breakpoint-tablet ) {
+		max-width: 320px;
+	}
+
+	@media ( max-width: @max-width-breakpoint-mobile ) {
+		max-width: 95vw;
+		clear: both;
+	}
+
+	#mw-toc-heading {
+		margin-top: 0;
+		font-size: 1.125rem;
+	}
+
+	& > ul {
+		margin-left: 0 !important;
+	}
+
+	ul,
+	li {
+		margin-top: 0;
+		margin-bottom: 0;
+		list-style: none;
 	}
 }

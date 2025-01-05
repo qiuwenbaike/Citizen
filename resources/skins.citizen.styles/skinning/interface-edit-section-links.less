@@ -9,6 +9,7 @@
 
 .mw-editsection {
 	display: flex;
+	gap: var( --space-xxs );
 	align-items: center;
 	float: right; // Can't target the container so have to use to float
 	margin-left: var( --space-sm );
@@ -42,6 +43,33 @@
 			font-size: 0;
 			text-indent: -9999px; // Hide text
 		}
+	}
+}
+
+// HACK: for Wikiplus
+.Wikiplus-Edit-SectionBtn,
+.citizen-editsection-icon {
+	display: block;
+	width: 1.875rem;
+	height: 1.875rem;
+	text-indent: -9999px; // Hide text
+	filter: var( --filter-invert );
+	opacity: var( --opacity-icon-base );
+	transition: var( --transition-hover );
+	transition-property: opacity;
+
+	&::before {
+		.resource-loader-icon;
+		display: block;
+		background-size: var( --size-icon );
+	}
+
+	&:hover {
+		opacity: var( --opacity-icon-base--hover );
+	}
+
+	&:active {
+		opacity: var( --opacity-icon-base--selected );
 	}
 }
 

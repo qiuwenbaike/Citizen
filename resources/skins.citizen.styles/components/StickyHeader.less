@@ -27,7 +27,7 @@
 
 .citizen-sticky-header-visible {
 	.citizen-page-header {
-		top: 0;
+		top: var( --header-size );
 		z-index: @z-index-stacking-3;
 		flex-wrap: nowrap;
 		white-space: nowrap;
@@ -50,7 +50,7 @@
 
 	.firstHeading {
 		overflow: hidden;
-		font-size: var( --font-size-large );
+		font-size: var( --font-size-x-large );
 		text-overflow: ellipsis;
 	}
 
@@ -77,7 +77,7 @@
 }
 
 html {
-	scroll-padding-top: ~'calc( var( --height-sticky-header ) + var( --space-xl ) )';
+	scroll-padding-top: ~'calc( 2.5 * var( --header-size ) + var( --space-xl ) )';
 }
 
 /*
@@ -93,11 +93,6 @@ html {
 	.citizen-sticky-header-visible {
 		.citizen-page-header-inner {
 			padding-block: var( --space-sm );
-		}
-
-		.firstHeading,
-		.mw-page-title-parenthesis {
-			font-size: var( --font-size-medium );
 		}
 	}
 }

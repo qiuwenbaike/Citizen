@@ -8,7 +8,7 @@ function deferredTasks() {
 
 	setupObservers.main();
 	speculationRules.init();
-	registerServiceWorker();
+	// registerServiceWorker();
 
 	window.addEventListener( 'beforeunload', () => {
 		// Set up loading indicator
@@ -26,7 +26,7 @@ function deferredTasks() {
  *
  * @return {void}
  */
-function registerServiceWorker() {
+/* function registerServiceWorker() {
 	const scriptPath = mw.config.get( 'wgScriptPath' );
 	// Only allow serviceWorker when the scriptPath is at root because of its scope
 	// I can't figure out how to add the Service-Worker-Allowed HTTP header
@@ -44,7 +44,7 @@ function registerServiceWorker() {
 				'&only=scripts&raw=true&skin=citizen&version=' + version;
 		navigator.serviceWorker.register( swUrl, { scope: '/' } );
 	}
-}
+} */
 
 /**
  * Initialize scripts related to wiki page content
@@ -52,6 +52,7 @@ function registerServiceWorker() {
  * @param {HTMLElement} bodyContent
  * @return {void}
  */
+/*
 function initBodyContent( bodyContent ) {
 	const
 		sections = require( './sections.js' ),
@@ -62,6 +63,7 @@ function initBodyContent( bodyContent ) {
 	// Overflow element enhancements
 	overflowElements.init( bodyContent );
 }
+*/
 
 /**
  * @param {Window} window
@@ -69,7 +71,7 @@ function initBodyContent( bodyContent ) {
  */
 function main( window ) {
 	const
-		config = require( './config.json' ),
+		// config = require( './config.json' ),
 		echo = require( './echo.js' ),
 		search = require( './search.js' ),
 		dropdown = require( './dropdown.js' ),
@@ -82,16 +84,20 @@ function main( window ) {
 	lastModified.init();
 	share.init();
 
+	/*
 	mw.hook( 'wikipage.content' ).add( ( content ) => {
 		// content is a jQuery object
 		// note that this refers to .mw-body-content, not #bodyContent
 		initBodyContent( content[ 0 ] );
 	} );
+	*/
 
+	/*
 	// Preference module
 	if ( config.wgCitizenEnablePreferences === true ) {
 		mw.loader.load( 'skins.citizen.preferences' );
 	}
+	 */
 
 	// Defer non-essential tasks
 	mw.requestIdleCallback( deferredTasks, { timeout: 3000 } );

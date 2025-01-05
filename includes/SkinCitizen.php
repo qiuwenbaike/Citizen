@@ -172,7 +172,7 @@ class SkinCitizen extends SkinMustache {
 
 		return array_merge( $parentData, [
 			// Booleans
-			'toc-enabled' => !empty( $parentData['data-toc'] ),
+			// 'toc-enabled' => !empty( $parentData['data-toc'] ),
 			'html-body-content--formatted' => $bodycontent->decorateBodyContent( $parentData['html-body-content'] )
 		] );
 	}
@@ -226,7 +226,7 @@ class SkinCitizen extends SkinMustache {
 
 		// Clientprefs feature handling
 		$this->addClientPrefFeature( 'citizen-feature-autohide-navigation', '1' );
-		$this->addClientPrefFeature( 'citizen-feature-pure-black', '0' );
+		// $this->addClientPrefFeature( 'citizen-feature-pure-black', '0' );
 		$this->addClientPrefFeature( 'citizen-feature-custom-font-size' );
 		$this->addClientPrefFeature( 'citizen-feature-custom-width' );
 
