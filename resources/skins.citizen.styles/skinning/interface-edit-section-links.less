@@ -59,8 +59,13 @@
 	transition-property: opacity;
 
 	&::before {
-		.resource-loader-icon;
+		position: absolute;
 		display: block;
+		width: inherit;
+		height: inherit;
+		content: '';
+		background-repeat: no-repeat;
+		background-position: center;
 		background-size: var( --size-icon );
 	}
 
