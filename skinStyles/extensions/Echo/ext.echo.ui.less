@@ -17,19 +17,19 @@
 
 .skin-citizen {
 	.mw-echo-ui-notificationBadgeButtonPopupWidget-popup {
-		top: unset !important;
+		// top: unset !important;
 		bottom: var( --header-size ) !important;
 		margin: var( --space-xs );
 		box-shadow: var( --box-shadow-drop-xx-large );
 
-		@media ( min-width: @min-width-breakpoint-desktop ) {
-			bottom: 0 !important;
-			left: var( --header-size ) !important;
-		}
+		// @media ( min-width: @min-width-breakpoint-desktop ) {
+		// 	bottom: 0 !important;
+		// 	left: var( --header-size ) !important;
+		// }
 
 		.oo-ui-popupWidget-body {
 			height: auto !important;
-			max-height: ~'calc( var( --header-card-maxheight ) - 2 * 3.1428571em )'; // 3.1428571em = height of .oo-ui-popupWidget-head & .oo-ui-popupWidget-footer
+			max-height: ~'calc( var( --header-card-maxheight ) - 4 * 3.1428571em )'; // 3.1428571em = height of .oo-ui-popupWidget-head & .oo-ui-popupWidget-footer
 		}
 
 		> .oo-ui-popupWidget-popup {
