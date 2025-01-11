@@ -1,5 +1,6 @@
 @page {
 	margin: 1cm;
+	background: var( --color-surface-0 );
 }
 
 :root {
@@ -15,6 +16,13 @@
 	&.citizen-feature-custom-font-size-clientpref-large {
 		--font-size-base: 13pt;
 	}
+}
+
+:root,
+html,
+body {
+	color: var( --color-base );
+	background: var( --color-surface-0 );
 }
 
 // Hide unnessecary elements for printing
@@ -50,7 +58,6 @@ svg {
 }
 
 .citizen-footer {
-	order: -1;
 	padding-block: var( --space-md );
 	margin-bottom: var( --space-md );
 	border-bottom: 1pt solid var( --border-color-base );
