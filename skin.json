@@ -111,10 +111,6 @@
 	"ResourceModules": {
 		"skins.citizen.styles": {
 			"class": "MediaWiki\\ResourceLoader\\SkinModule",
-			"targets": [
-				"desktop",
-				"mobile"
-			],
 			"features": {
 				"normalize": true,
 				"content-links": true,
@@ -129,10 +125,6 @@
 		},
 		"skins.citizen.styles.fonts.cjk": {
 			"class": "MediaWiki\\ResourceLoader\\SkinModule",
-			"targets": [
-				"desktop",
-				"mobile"
-			],
 			"features": {
 				"accessibility": false,
 				"content-body": false,
@@ -145,10 +137,6 @@
 		},
 		"skins.citizen.styles.fonts.ar": {
 			"class": "MediaWiki\\ResourceLoader\\SkinModule",
-			"targets": [
-				"desktop",
-				"mobile"
-			],
 			"features": {
 				"accessibility": false,
 				"content-body": false,
@@ -205,10 +193,6 @@
 			"dependencies": [
 				"mediawiki.util",
 				"mediawiki.page.ready"
-			],
-			"targets": [
-				"desktop",
-				"mobile"
 			]
 		},
 		"skins.citizen.search": {
@@ -275,10 +259,6 @@
 				"mediawiki.template.mustache",
 				"mediawiki.user",
 				"mediawiki.util"
-			],
-			"targets": [
-				"desktop",
-				"mobile"
 			]
 		},
 		"skins.citizen.icons": {
