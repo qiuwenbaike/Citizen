@@ -52,18 +52,16 @@ function deferredTasks() {
  * @param {HTMLElement} bodyContent
  * @return {void}
  */
-/*
 function initBodyContent( bodyContent ) {
 	const
-		sections = require( './sections.js' ),
+		/* sections = require( './sections.js' ), */
 		overflowElements = require( './overflowElements.js' );
 
 	// Collapsable sections
-	sections.init( bodyContent );
+	/* sections.init( bodyContent ); */
 	// Overflow element enhancements
 	overflowElements.init( bodyContent );
 }
-*/
 
 /**
  * @param {Window} window
@@ -84,13 +82,11 @@ function main( window ) {
 	lastModified.init();
 	share.init();
 
-	/*
 	mw.hook( 'wikipage.content' ).add( ( content ) => {
 		// content is a jQuery object
 		// note that this refers to .mw-body-content, not #bodyContent
 		initBodyContent( content[ 0 ] );
 	} );
-	*/
 
 	/*
 	// Preference module
