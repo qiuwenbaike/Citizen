@@ -4,7 +4,6 @@ declare( strict_types=1 );
 
 namespace MediaWiki\Skins\Citizen\Tests\Unit\Components;
 
-use MediaWiki\Skins\Citizen\Components\CitizenComponent;
 use MediaWiki\Skins\Citizen\Components\CitizenComponentMenu;
 use MediaWikiUnitTestCase;
 
@@ -56,18 +55,6 @@ class CitizenComponentMenuTest extends MediaWikiUnitTestCase {
 	}
 
 	/**
-	 * This test checks if the CitizenComponentMenu class can be instantiated
-	 * @covers ::__construct
-	 */
-	public function testConstruct() {
-		// Create a new CitizenComponentMenu object
-		$menu = new CitizenComponentMenu( [] );
-
-		// Check if the object is an instance of CitizenComponent
-		$this->assertInstanceOf( CitizenComponent::class, $menu );
-	}
-
-	/**
 	 * This test checks if the count method returns the correct number of items
 	 * @covers ::count
 	 * @dataProvider provideCountData
@@ -82,6 +69,7 @@ class CitizenComponentMenuTest extends MediaWikiUnitTestCase {
 
 	/**
 	 * This test checks if the getTemplateData method returns the correct data
+	 * @covers ::__construct
 	 * @covers ::getTemplateData
 	 * @dataProvider provideMenuData
 	 */

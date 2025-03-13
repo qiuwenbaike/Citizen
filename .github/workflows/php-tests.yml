@@ -13,9 +13,11 @@ jobs:
         include:
           - mw: 'REL1_43'
             php: 8.3
+            coverage: xdebug
             experimental: false
           - mw: 'master'
             php: 8.4
+            coverage: none
             experimental: true
 
     runs-on: ubuntu-latest
@@ -25,11 +27,11 @@ jobs:
         working-directory: mediawiki
 
     steps:
-      - name: Setup PHP with PCOV
+      - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          coverage: pcov
+          coverage: ${{ matrix.coverage }}
           extensions: mbstring, intl
           tools: composer
 
@@ -41,7 +43,8 @@ jobs:
             mediawiki
             !mediawiki/extensions/
             !mediawiki/vendor/
-          key: mw_${{ matrix.mw }}-php${{ matrix.php }}-v21
+            mediawiki/phpunit.xml.dist
+          key: mw_${{ matrix.mw }}-php${{ matrix.php }}-v24
 
       - name: Cache Composer cache
         uses: actions/cache@v4
@@ -66,12 +69,19 @@ jobs:
         run: composer update --no-ansi --no-interaction --no-progress
 
       - name: Run tests with PHPUnit
-        run: php tests/phpunit/phpunit.php --group Citizen --coverage-clover=coverage.xml
+        if: ${{ matrix.coverage == 'none' }}
+        run: composer phpunit:entrypoint -- skins/Citizen
+
+      - name: Run tests with PHPUnit with coverage
+        if: ${{ matrix.coverage == 'xdebug' }}
+        run: |
+          composer phpunit:coverage-edit -- skins/Citizen
+          XDEBUG_MODE=coverage composer phpunit -- --testsuite skins --coverage-clover skins/Citizen/coverage/php/coverage.xml skins/Citizen/tests/phpunit --exclude-group Stub
 
       - name: Scan with SonarQube
         uses: sonarsource/sonarqube-scan-action@v5
         # Only one once
-        if: ${{ matrix.mw == 'REL1_43' && matrix.php == 8.3 }}
+        if: ${{ matrix.coverage == 'xdebug' }}
         with:
           projectBaseDir: mediawiki/skins/Citizen
         env:
