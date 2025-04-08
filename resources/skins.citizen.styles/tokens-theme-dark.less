@@ -6,17 +6,17 @@
  * TODO: Use CSS relative color syntax when supported in all browsers
  */
 .theme-dark() {
-	--delta-lightness-surface-base: 3%;
+	--delta-lightness-surface-base: 2%;
 
 	--color-progressive-oklch__l: 60%; // TODO: Separate background-color-progressive from color-progressive
 	--color-progressive-hsl__l: 60%;
 
-	--color-surface-0-oklch__l: 16%;
-	--color-surface-0-hsl__l: 5%;
+	--color-surface-0-oklch__l: 14%;
+	--color-surface-0-hsl__l: 4%;
 
-	--color-emphasized-oklch__l: 95%;
+	--color-emphasized-oklch__l: 93%;
 	--color-emphasized-oklch__c: 0.03;
-	--color-base-oklch__l: 85%;
+	--color-base-oklch__l: 80%;
 	--color-base-oklch__c: 0.05;
 	--color-subtle-oklch__l: 70%;
 	--color-subtle-oklch__c: 0.07;
@@ -36,7 +36,7 @@
 	--color-success__l: 35%;
 	--color-warning__l: 60%;
 	--background-color-subtle__s: 85%;
-	--background-color-subtle__l: 10%;
+	--background-color-subtle__l: 5%;
 
 	--color-syntax-red: @color-syntax-red-dark;
 	--color-syntax-orange: @color-syntax-orange-dark;
@@ -66,7 +66,7 @@
 
 	--filter-invert: invert( 1 ) hue-rotate( 180deg );
 
-	--font-grade: -25;
+	--font-grade: 0;
 
 	// FIXME: Browsers seem to treat GRAD differently, disabling for now
 	// Dark theme usually have an illusion of thicker fonts
