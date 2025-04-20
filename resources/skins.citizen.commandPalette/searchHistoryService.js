@@ -54,11 +54,21 @@ function createSearchHistoryService() {
 	 * @return {Object} Recent items in the format expected by the command palette
 	 */
 	function getRecentItems() {
+		return mw.storage.getObject( RECENT_ITEMS_KEY ) || [];
+	}
+
+	/**
+	 * Removes a specific item from recent history
+	 *
+	 * @param {Object} item - The item to remove
+	 */
+	function removeRecentItem( item ) {
 		const recentItems = mw.storage.getObject( RECENT_ITEMS_KEY ) || [];
-		return {
-			items: recentItems,
-			showThumbnail: true
-		};
+		const index = recentItems.findIndex( ( i ) => i.id === item.id );
+		if ( index !== -1 ) {
+			recentItems.splice( index, 1 );
+			mw.storage.setObject( RECENT_ITEMS_KEY, recentItems );
+		}
 	}
 
 	/**
@@ -72,6 +82,7 @@ function createSearchHistoryService() {
 		saveRecentItem,
 		saveSearchQuery,
 		getRecentItems,
+		removeRecentItem,
 		clearHistory
 	};
 }
