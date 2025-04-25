@@ -1,13 +1,17 @@
 <template>
 	<command-palette-list
-		v-if="itemsWithActions.length > 0"
+		v-if="recentItems.length > 0"
 		:heading="$i18n( 'citizen-command-palette-recent' ).text()"
-		:items="itemsWithActions"
+		:items="recentItems"
 		:highlighted-item-index="highlightedItemIndex"
 		:search-query="searchQuery"
+		:set-item-ref="setItemRef"
 		@update:highlighted-item-index="$emit( 'update:highlighted-item-index', $event )"
 		@select="$emit( 'select', $event )"
 		@action="handleAction"
+		@navigate-list="( direction ) => $emit( 'navigate-list', direction )"
+		@focus-action="( payload ) => $emit( 'focus-action', payload )"
+		@blur-actions="() => $emit( 'blur-actions' )"
 	></command-palette-list>
 	<command-palette-empty-state
 		v-else
@@ -18,11 +22,11 @@
 </template>
 
 <script>
-const { defineComponent, computed } = require( 'vue' );
+const { defineComponent } = require( 'vue' );
 const CommandPaletteList = require( './CommandPaletteList.vue' );
 const CommandPaletteEmptyState = require( './CommandPaletteEmptyState.vue' );
-const { cdxIconArticlesSearch, cdxIconTrash } = require( '../icons.json' );
-const createSearchHistoryService = require( '../searchHistoryService.js' );
+const { cdxIconArticlesSearch } = require( '../icons.json' );
+const createRecentItems = require( '../services/recentItems.js' );
 
 // @vue/component
 module.exports = exports = defineComponent( {
@@ -43,31 +47,21 @@ module.exports = exports = defineComponent( {
 		searchQuery: {
 			type: String,
 			required: true
+		},
+		setItemRef: {
+			type: Function,
+			default: null
 		}
 	},
-	emits: [ 'update:highlighted-item-index', 'select', 'update:recent-items' ],
+	emits: [ 'update:highlighted-item-index', 'select', 'update:recent-items', 'navigate-list', 'focus-action', 'blur-actions' ],
 	setup( props, { emit } ) {
-		const searchHistoryService = createSearchHistoryService();
-
-		// Add dismiss action to recent items
-		const itemsWithActions = computed( () => props.recentItems.map( ( item ) => ( {
-			...item,
-			actions: [
-				{
-					id: 'dismiss',
-					label: mw.msg( 'citizen-command-palette-dismiss' ),
-					icon: cdxIconTrash
-				}
-			]
-		} ) ) );
+		const recentItemsService = createRecentItems();
 
 		const handleAction = ( action ) => {
 			if ( action.actionId === 'dismiss' ) {
-				// Find the item to remove
-				const itemToRemove = props.recentItems.find( ( item ) => item.id === action.itemId );
+				const itemToRemove = props.recentItems.find( ( item ) => String( item.id ) === action.itemId );
 				if ( itemToRemove ) {
-					searchHistoryService.removeRecentItem( itemToRemove );
-					// Notify parent to update the list
+					recentItemsService.removeRecentItem( itemToRemove );
 					emit( 'update:recent-items' );
 				}
 			}
@@ -75,8 +69,7 @@ module.exports = exports = defineComponent( {
 
 		return {
 			cdxIconArticlesSearch,
-			handleAction,
-			itemsWithActions
+			handleAction
 		};
 	}
 } );

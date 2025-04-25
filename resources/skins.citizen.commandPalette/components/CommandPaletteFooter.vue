@@ -6,7 +6,12 @@
 		</div>
 		<command-palette-keyboard-hints
 			:has-highlighted-item-with-actions="hasHighlightedItemWithActions"
-			:is-action-button-focused="isActionButtonFocused"
+			:item-count="itemCount"
+			:highlighted-item-type="highlightedItemType"
+			:is-action-focused="isActionFocused"
+			:is-first-action-focused="isFirstActionFocused"
+			:focused-action-index="focusedActionIndex"
+			:action-count="actionCount"
 		></command-palette-keyboard-hints>
 	</div>
 </template>
@@ -26,9 +31,29 @@ module.exports = exports = defineComponent( {
 			type: Boolean,
 			required: true
 		},
-		isActionButtonFocused: {
-			type: Boolean,
+		itemCount: {
+			type: Number,
 			required: true
+		},
+		highlightedItemType: {
+			type: [ String, null ],
+			default: null
+		},
+		isActionFocused: {
+			type: Boolean,
+			default: false
+		},
+		isFirstActionFocused: {
+			type: Boolean,
+			default: false
+		},
+		focusedActionIndex: {
+			type: Number,
+			default: -1
+		},
+		actionCount: {
+			type: Number,
+			default: 0
 		}
 	}
 } );

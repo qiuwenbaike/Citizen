@@ -1,16 +1,12 @@
-/**
- * Service for managing search history in the command palette
- */
-const { cdxIconHistory } = require( './icons.json' );
+const { CommandPaletteItem } = require( '../types.js' );
+const { cdxIconHistory, cdxIconTrash } = require( '../icons.json' );
 const RECENT_ITEMS_KEY = 'skin-citizen-command-palette-recent-items';
 const MAX_RECENT_ITEMS = 5;
 
 /**
- * Creates a search history service
- *
- * @return {Object} Search history service
+ * @return {Object} Recent items service
  */
-function createSearchHistoryService() {
+function createRecentItems() {
 	/**
 	 * Saves an item to recent history
 	 *
@@ -51,10 +47,23 @@ function createSearchHistoryService() {
 	/**
 	 * Gets recent items from history
 	 *
-	 * @return {Object} Recent items in the format expected by the command palette
+	 * @return {Array<CommandPaletteItem>} Recent items in the format expected by the command palette
 	 */
 	function getRecentItems() {
-		return mw.storage.getObject( RECENT_ITEMS_KEY ) || [];
+		const items = mw.storage.getObject( RECENT_ITEMS_KEY ) ?? [];
+		const dismissAction = {
+			id: 'dismiss',
+			label: mw.msg( 'citizen-command-palette-dismiss' ),
+			icon: cdxIconTrash
+		};
+
+		return items.map( ( item ) => ( {
+			...item,
+			actions: [
+				...( Array.isArray( item.actions ) ? item.actions : [] ),
+				dismissAction
+			]
+		} ) );
 	}
 
 	/**
@@ -87,4 +96,4 @@ function createSearchHistoryService() {
 	};
 }
 
-module.exports = createSearchHistoryService;
+module.exports = createRecentItems;

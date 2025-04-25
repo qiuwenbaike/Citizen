@@ -3,60 +3,79 @@
 		v-if="isOpen"
 		class="citizen-command-palette-backdrop"
 		@click="close"></div>
-	<div v-if="isOpen" class="citizen-command-palette">
+	<div
+		v-if="isOpen"
+		class="citizen-command-palette"
+		@keydown="handleRootKeydown"
+	>
 		<command-palette-header
 			ref="searchHeader"
-			v-model="searchQuery"
-			:is-pending="isPending"
-			:show-pending="showPending"
-			@keydown="onKeydown"
+			:model-value="searchStore.searchQuery"
+			:is-pending="searchStore.isPending"
+			:show-pending="searchStore.showPending"
+			@update:model-value="searchStore.updateQuery( $event )"
 			@close="close"
 		></command-palette-header>
 		<div
 			ref="resultsContainer"
 			class="citizen-command-palette__results"
 		>
-			<template v-if="!searchQuery">
+			<!-- Show Recent Items (using Presults) when query is empty and not loading -->
+			<template v-if="!searchStore.searchQuery && !searchStore.isPending">
 				<command-palette-presults
-					:recent-items="currentItems"
+					:recent-items="displayedItems"
 					:highlighted-item-index="highlightedItemIndex"
-					:search-query="searchQuery"
+					:search-query="searchStore.searchQuery"
+					:set-item-ref="setItemRef"
 					@update:highlighted-item-index="updatehighlightedItemIndex"
 					@select="selectResult"
-					@update:recent-items="loadRecentItems"
+					@update:recent-items="searchStore.updateQuery( '' )"
+					@navigate-list="handleNavigationKeydown"
+					@focus-action="handleFocusAction"
+					@blur-actions="handleBlurActions"
 				></command-palette-presults>
 			</template>
-			<template v-else-if="currentItems.length === 0 && !isPending">
+			<!-- Show Empty State when query exists, not pending, and no results -->
+			<template v-else-if="searchStore.searchQuery && !searchStore.isPending && displayedItems.length === 0">
 				<command-palette-empty-state
-					:title="$i18n( 'citizen-search-noresults-title' ).params( [ searchQuery ] ).text()"
+					:title="$i18n( 'citizen-search-noresults-title' ).params( [ searchStore.searchQuery ] ).text()"
 					:description="$i18n( 'search-nonefound' ).text()"
 					:icon="cdxIconArticleNotFound"
 				></command-palette-empty-state>
 			</template>
-			<template v-else>
+			<!-- Show Regular List for search results or slash commands when query exists and has results, or when loading -->
+			<template v-else-if="( searchStore.searchQuery || searchStore.isPending ) && displayedItems.length > 0">
 				<command-palette-list
-					v-if="currentItems.length > 0"
-					:items="currentItems"
+					:items="displayedItems"
 					:highlighted-item-index="highlightedItemIndex"
-					:search-query="searchQuery"
+					:search-query="searchStore.searchQuery"
+					:set-item-ref="setItemRef"
 					@update:highlighted-item-index="updatehighlightedItemIndex"
 					@select="selectResult"
 					@action="handleAction"
+					@navigate-list="handleNavigationKeydown"
+					@focus-action="handleFocusAction"
+					@blur-actions="handleBlurActions"
 				></command-palette-list>
 			</template>
 		</div>
 		<command-palette-footer
-			:has-highlighted-item-with-actions="hasHighlightedItemWithActions()"
-			:is-action-button-focused="isActionButtonFocused"
+			:has-highlighted-item-with-actions="hasHighlightedItemWithActions"
+			:item-count="itemCount"
+			:highlighted-item-type="highlightedItemType"
+			:is-action-focused="actionFocusActive"
+			:is-first-action-focused="firstActionFocusActive"
+			:focused-action-index="focusedActionIndex"
+			:action-count="actionCount"
 		></command-palette-footer>
 	</div>
 </template>
 
 <script>
-const { defineComponent, ref, watch, nextTick } = require( 'vue' );
-const createSearchService = require( '../searchService.js' );
-const createSearchHistoryService = require( '../searchHistoryService.js' );
-const urlGenerator = require( '../urlGenerator.js' )();
+const { useSearchStore } = require( '../stores/searchStore.js' );
+const { storeToRefs } = require( 'pinia' );
+const { defineComponent, ref, nextTick, computed, watch } = require( 'vue' );
+const useListNavigation = require( '../composables/useListNavigation.js' );
 const CommandPaletteList = require( './CommandPaletteList.vue' );
 const CommandPaletteEmptyState = require( './CommandPaletteEmptyState.vue' );
 const CommandPalettePresults = require( './CommandPalettePresults.vue' );
@@ -79,420 +98,248 @@ module.exports = exports = defineComponent( {
 	},
 	props: {},
 	setup() {
-		// State
+		const searchStore = useSearchStore();
+		const {
+			displayedItems
+		} = storeToRefs( searchStore );
+
 		const isOpen = ref( false );
-		const isPending = ref( false );
-		const showPending = ref( false );
-		const searchQuery = ref( '' );
-		const highlightedItemIndex = ref( -1 );
-		const debounceTimeout = ref( null );
 		const searchHeader = ref( null );
 		const resultsContainer = ref( null );
-		const searchService = ref( createSearchService( mw.config ) );
-		const searchHistoryService = ref( createSearchHistoryService() );
-		const currentItems = ref( [] );
-		// Track if an action button is currently focused
-		const isActionButtonFocused = ref( false );
+		const itemRefs = ref( [] );
+		const actionFocusActive = ref( false );
+		const firstActionFocusActive = ref( false );
+		const focusedActionIndex = ref( -1 );
 
-		// Load recent items
-		const loadRecentItems = () => {
-			currentItems.value = searchHistoryService.value.getRecentItems();
+		const { highlightedItemIndex, handleNavigationKeydown } = useListNavigation( displayedItems, itemRefs );
+
+		const focusInput = () => {
+			searchHeader.value?.focus();
 		};
 
-		// Navigation methods
-		const highlightNext = () => {
-			if ( !currentItems.value.length ) {
-				return;
-			}
-			highlightedItemIndex.value = ( highlightedItemIndex.value + 1 ) % currentItems.value.length;
-		};
-
-		const highlightPrevious = () => {
-			if ( !currentItems.value.length ) {
-				return;
-			}
-			highlightedItemIndex.value = ( highlightedItemIndex.value - 1 + currentItems.value.length ) % currentItems.value.length;
-		};
-
-		const highlightFirst = () => {
-			if ( currentItems.value.length > 0 ) {
-				highlightedItemIndex.value = 0;
-			} else {
-				highlightedItemIndex.value = -1;
+		const setItemRef = ( el, index ) => {
+			if ( el ) {
+				itemRefs.value[ index ] = el;
 			}
 		};
 
-		const highlightLast = () => {
-			if ( currentItems.value.length > 0 ) {
-				highlightedItemIndex.value = currentItems.value.length - 1;
-			}
+		const open = () => {
+			isOpen.value = true;
+			searchStore.clearSearch();
+			nextTick( focusInput );
 		};
 
-		// Check if input cursor is at the end of text
-		const isCursorAtInputEnd = () => {
-			const inputEl = searchHeader.value?.$el.querySelector( 'input' );
-			return inputEl?.selectionStart === inputEl?.value.length;
+		const close = () => {
+			isOpen.value = false;
 		};
 
-		// Check if there's a valid highlighted item with actions
-		const hasHighlightedItemWithActions = () => {
-			if ( currentItems.value.length === 0 || highlightedItemIndex.value < 0 ) {
+		const updatehighlightedItemIndex = ( index ) => {
+			highlightedItemIndex.value = index;
+		};
+
+		const hasHighlightedItemWithActions = computed( () => {
+			if ( displayedItems.value.length === 0 || highlightedItemIndex.value < 0 ) {
 				return false;
 			}
-
-			const highlightedItem = currentItems.value[ highlightedItemIndex.value ];
+			const highlightedItem = displayedItems.value[ highlightedItemIndex.value ];
 			return Boolean(
 				highlightedItem &&
 				highlightedItem.actions &&
 				highlightedItem.actions.length > 0
 			);
-		};
-
-		// Find and get the first action button of the highlighted item
-		const getFirstActionButton = () => resultsContainer.value.querySelector(
-			'.citizen-command-palette-list-item--highlighted .citizen-command-palette-list-item__action'
-		);
-
-		// Enhanced action objects - Add keyboard hint metadata to actions when building the search results
-		const enhanceActionsWithHints = ( actions ) => {
-			if ( !actions || !Array.isArray( actions ) ) {
-				return [];
-			}
-
-			return actions.map( ( action, index ) => {
-				// Clone the action to avoid modifying the original
-				const enhancedAction = { ...action };
-
-				// Add keyboard hint metadata
-				enhancedAction.keyHint = {
-					key: index === 0 ? '→' : '',
-					label: action.label || '',
-					ariaLabel: action.ariaLabel || action.label || ''
-				};
-
-				return enhancedAction;
-			} );
-		};
-
-		// Focus the action button of the highlighted item
-		const focusActionButton = () => {
-			// Check preconditions
-			if ( !isCursorAtInputEnd() || !hasHighlightedItemWithActions() ) {
-				return false;
-			}
-
-			// Find the button
-			const actionButton = getFirstActionButton();
-			if ( !actionButton ) {
-				return false;
-			}
-
-			// Move focus from input to the action button
-			const inputEl = searchHeader.value?.$el.querySelector( 'input' );
-			if ( inputEl ) {
-				inputEl.blur();
-			}
-			actionButton.focus();
-			isActionButtonFocused.value = true;
-			return true;
-		};
-
-		const getSearchUrl = () => urlGenerator.generateUrl( 'Special:Search', {
-			search: searchQuery.value
 		} );
 
-		const selectResult = ( result ) => {
-			if ( !result ) {
-				window.location.href = getSearchUrl();
-				// Save the search query as a recent item when there are no results
-				if ( searchQuery.value.trim() !== '' ) {
-					searchHistoryService.value.saveSearchQuery( searchQuery.value, getSearchUrl() );
-				}
-				isOpen.value = false;
-				return;
-			}
+		const itemCount = computed( () => displayedItems.value.length );
 
-			// If we have a valid result with URL, navigate to it
-			if ( result.url ) {
-				window.location.href = result.url;
-				// Save the entire result object to recent items
-				searchHistoryService.value.saveRecentItem( result );
-			} else {
-				// If no URL, fall back to search and save the query
-				window.location.href = getSearchUrl();
-				searchHistoryService.value.saveSearchQuery( searchQuery.value, getSearchUrl() );
+		const currentItem = computed( () => {
+			if ( highlightedItemIndex.value >= 0 && displayedItems.value.length > highlightedItemIndex.value ) {
+				return displayedItems.value[ highlightedItemIndex.value ];
 			}
-			isOpen.value = false;
+			return null;
+		} );
+
+		const highlightedItemType = computed( () => currentItem.value?.type || null );
+		const actionCount = computed( () => currentItem.value?.actions?.length || 0 );
+
+		const handleFocusAction = ( payload ) => {
+			actionFocusActive.value = true;
+			firstActionFocusActive.value = payload.isFirst;
+			focusedActionIndex.value = payload.index;
+		};
+
+		const handleBlurActions = () => {
+			actionFocusActive.value = false;
+			firstActionFocusActive.value = false;
+			focusedActionIndex.value = -1;
+		};
+
+		const selectResult = ( result ) => {
+			const selectionAction = searchStore.handleSelection( result );
+
+			switch ( selectionAction.action ) {
+				case 'navigate':
+					if ( selectionAction.payload ) {
+						window.location.href = selectionAction.payload;
+						close(); // Close after initiating navigation
+					}
+					break;
+				case 'updateQuery':
+					// Query already updated by the store action, just focus input
+					nextTick( focusInput );
+					break;
+				case 'none':
+				default:
+					// No specific action needed from the component side
+					// Potential improvement: Maybe close if enter is pressed on empty slash command?
+					break;
+			}
+		};
+
+		const handleAction = ( action ) => {
+			if ( action.url ) {
+				window.location.href = action.url;
+				close();
+			} else if ( action.event ) {
+				// Use mw.log for debugging in MediaWiki context if preferred
+				// console.log( 'Action event:', action.event );
+			}
 		};
 
 		const onKeydown = ( event ) => {
-			const keyHandlers = {
-				ArrowUp: () => {
+			// Handle list navigation (Up/Down/Home/End)
+			if ( [ 'ArrowUp', 'ArrowDown', 'Home', 'End' ].includes( event.key ) ) {
+				if ( handleNavigationKeydown( event ) ) {
 					event.preventDefault();
-					highlightPrevious();
-				},
-				ArrowDown: () => {
-					event.preventDefault();
-					highlightNext();
-				},
-				ArrowRight: () => {
-					if ( focusActionButton() ) {
+					nextTick( focusInput );
+					return;
+				}
+			}
+
+			if ( event.key === 'Enter' ) {
+				event.preventDefault();
+				const selectedItem = highlightedItemIndex.value >= 0 ?
+					displayedItems.value[ highlightedItemIndex.value ] :
+					null;
+				if ( selectedItem ) {
+					selectResult( selectedItem );
+				}
+			} else if ( event.key === 'Escape' ) {
+				close();
+			} else if ( event.key === 'ArrowRight' ) {
+				// Handle moving focus to actions
+				const inputElement = event.target;
+				const isCursorAtEnd = inputElement.selectionStart === inputElement.value.length && inputElement.selectionEnd === inputElement.value.length;
+				const currentItemIndex = highlightedItemIndex.value;
+				const itemHasActions = hasHighlightedItemWithActions.value; // Cache computed value
+
+				if ( isCursorAtEnd && currentItemIndex >= 0 && itemHasActions ) {
+					const itemComponent = itemRefs.value[ currentItemIndex ];
+					if ( itemComponent?.focusFirstButton ) {
 						event.preventDefault();
+						itemComponent.focusFirstButton();
 					}
-				},
-				Home: () => {
-					event.preventDefault();
-					highlightFirst();
-				},
-				End: () => {
-					event.preventDefault();
-					highlightLast();
-				},
-				Enter: () => {
-					event.preventDefault();
-					selectResult( currentItems.value[ highlightedItemIndex.value ] );
 				}
-			};
-
-			const handler = keyHandlers[ event.key ];
-			if ( handler ) {
-				handler();
 			}
 		};
 
-		// Scroll handling
-		const maybeScrollIntoView = () => {
-			if ( !resultsContainer.value ) {
-				return;
+		// Watch for changes in displayed items to potentially reset selection
+		watch( displayedItems, ( newItems ) => {
+			// Reset selection to the first item if the provider indicated it
+			if ( searchStore.autoSelectFirst && newItems.length > 0 ) {
+				highlightedItemIndex.value = 0;
+			} else if ( newItems.length === 0 ) {
+				// Reset if list becomes empty
+				highlightedItemIndex.value = -1;
 			}
-
-			const isResultsScrollable =
-				resultsContainer.value.scrollHeight > resultsContainer.value.clientHeight;
-
-			if ( !isResultsScrollable ) {
-				return;
-			}
-
-			const highlightedElement = resultsContainer.value.querySelector( '.citizen-command-palette-list-item--highlighted' );
-			highlightedElement?.scrollIntoView( {
-				block: 'nearest',
-				behavior: 'smooth'
-			} );
-		};
-
-		// Selection handling
-		const updatehighlightedItemIndex = ( index ) => {
-			highlightedItemIndex.value = index;
-		};
-
-		const handleAction = ( { actionUrl, onClick, itemId } ) => {
-			// Find the item associated with this action
-			const item = currentItems.value.find( ( result ) => result.id === itemId );
-
-			// Process the action
-			if ( onClick ) {
-				onClick();
-
-				// Save item to recent items when performing action with onClick
-				if ( item ) {
-					searchHistoryService.value.saveRecentItem( item );
-				}
-				return;
-			}
-
-			if ( actionUrl ) {
-				// Save item to recent items before navigating
-				if ( item ) {
-					searchHistoryService.value.saveRecentItem( item );
-				}
-
-				window.location.href = actionUrl;
-				isOpen.value = false;
-			}
-		};
-
-		// Search method
-		// eslint-disable-next-line es-x/no-async-functions
-		const search = async ( query ) => {
-			highlightedItemIndex.value = -1;
-
-			if ( !query ) {
-				// Clear any pending state immediately
-				isPending.value = false;
-				showPending.value = false;
-				// Load recent items synchronously
-				loadRecentItems();
-				return;
-			}
-
-			showPending.value = true;
-
-			try {
-				const results = await searchService.value.search( query, 10 );
-				const items = results?.map( ( result ) => {
-					if ( !result || typeof result !== 'object' ) {
-						return null;
-					}
-
-					// Enhance actions with keyboard hints
-					const enhancedActions = enhanceActionsWithHints( result.actions );
-
-					return {
-						type: 'page',
-						id: `citizen-command-palette-result-page-${ result.id || result.title }`,
-						label: result.label || result.title,
-						description: result.description,
-						url: result.url,
-						thumbnail: result.thumbnail,
-						thumbnailIcon: result.thumbnailIcon,
-						metadata: result.metadata || [],
-						actions: enhancedActions
-					};
-				} ).filter( Boolean ) || [];
-
-				currentItems.value = items;
-			} catch ( error ) {
-				mw.log.error( 'Error searching:', error );
-				currentItems.value = [];
-			} finally {
-				isPending.value = false;
-				// Delay hiding the pending state to prevent flicker
-				setTimeout( () => {
-					showPending.value = false;
-				}, 300 );
-			}
-		};
-
-		// Watchers
-		watch( searchQuery, ( newQuery ) => {
-			if ( debounceTimeout.value ) {
-				clearTimeout( debounceTimeout.value );
-			}
-			isPending.value = true;
-
-			if ( !newQuery ) {
-				// Clear items immediately when query is emptied
-				currentItems.value = [];
-				// Load recent items in next tick to prevent flash
-				nextTick( () => {
-					loadRecentItems();
-				} );
-				return;
-			}
-
-			debounceTimeout.value = setTimeout( () => {
-				search( newQuery );
-			}, 300 );
 		} );
 
-		watch( highlightedItemIndex, () => {
-			nextTick( () => {
-				maybeScrollIntoView();
-			} );
-		} );
-
-		watch( currentItems, () => {
-			nextTick( () => {
-				maybeScrollIntoView();
-			} );
-		}, { deep: true } );
-
-		// Add event listener for action button keydown
-		const setupActionButtonKeyNavigation = () => {
-			// Use event delegation on the results container
-			resultsContainer.value?.addEventListener( 'keydown', ( event ) => {
-				// Check if the event target is an action button
-				if ( event.target.classList.contains( 'citizen-command-palette-list-item__action' ) ) {
-					if ( event.key === 'ArrowLeft' ) {
-						const prevButton = event.target.previousElementSibling;
-						if ( prevButton && prevButton.classList.contains( 'citizen-command-palette-list-item__action' ) ) {
-							// Focus previous action button if it exists
-							prevButton.focus();
-						} else {
-							// If no previous action button, return focus to the highlighted item and search input
-							event.target.blur();
-							searchHeader.value?.$el.querySelector( 'input' )?.focus();
-							isActionButtonFocused.value = false;
-						}
-						event.preventDefault();
-					} else if ( event.key === 'ArrowRight' ) {
-						const nextButton = event.target.nextElementSibling;
-						if ( nextButton && nextButton.classList.contains( 'citizen-command-palette-list-item__action' ) ) {
-							// Focus next action button if it exists
-							nextButton.focus();
-							event.preventDefault();
-						}
-					}
-				}
-			} );
-
-			// Track focus state for keyboard hints
-			resultsContainer.value?.addEventListener( 'focusin', ( event ) => {
-				if ( event.target.classList.contains( 'citizen-command-palette-list-item__action' ) ) {
-					isActionButtonFocused.value = true;
-				}
-			} );
-
-			resultsContainer.value?.addEventListener( 'focusout', ( event ) => {
-				if ( event.target.classList.contains( 'citizen-command-palette-list-item__action' ) ) {
-					// Only set to false if we're not focusing another action button
-					if ( !event.relatedTarget || !event.relatedTarget.classList.contains( 'citizen-command-palette-list-item__action' ) ) {
-						isActionButtonFocused.value = false;
-					}
-				}
-			} );
-		};
-
-		// Watch isOpen to set up event listeners when the command palette opens
-		watch( isOpen, ( newValue ) => {
-			if ( newValue ) {
-				nextTick( () => {
-					setupActionButtonKeyNavigation();
-				} );
+		// Watch for the store flag indicating input focus is needed
+		watch( () => searchStore.needsInputFocus, ( needsFocus ) => {
+			if ( needsFocus ) {
+				focusInput();
+				// Reset the flag in the store after focusing
+				searchStore.focusHandled();
 			}
 		} );
+
+		// Global keydown handler for the palette root element
+		const handleRootKeydown = ( event ) => {
+			// Ignore if modifier keys are pressed
+			if ( event.altKey || event.ctrlKey || event.metaKey || event.shiftKey ) {
+				return;
+			}
+
+			// Get the input element via the header component's method
+			const inputElement = searchHeader.value?.getInputElement();
+
+			// Let the header's own handler deal with events originating from the input
+			if ( inputElement && event.target === inputElement ) {
+				onKeydown( event );
+				return;
+			}
+
+			// Check if focus is currently within an action button
+			const isActionFocused = event.target?.closest( '.citizen-command-palette-list-item__action' );
+
+			if ( isActionFocused ) {
+				// Check for specifically handled keys within actions (handled by useActionNavigation)
+				const handledByActionNav = [ 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Enter', ' ' ];
+				if ( handledByActionNav.includes( event.key ) ) {
+					// Let the action button's own handler manage these
+					return;
+				}
+
+				// Check for other navigation/control keys we don't want to trigger refocus
+				const nonTypingKeys = [ 'Escape', 'Tab', 'Home', 'End', 'PageUp', 'PageDown' ];
+				if ( nonTypingKeys.includes( event.key ) ) {
+					// Handle Escape globally, ignore others
+					if ( event.key === 'Escape' ) {
+						close();
+					}
+					return;
+				}
+
+				// If it's likely a typing key (length 1 or Backspace/Delete)
+				if ( event.key.length === 1 || event.key === 'Backspace' || event.key === 'Delete' ) {
+					focusInput();
+					// Do not preventDefault, allow the keypress into the input
+					return;
+				}
+			}
+
+			// If focus is not in input or actions, handle Escape globally
+			if ( event.key === 'Escape' ) {
+				close();
+			}
+		};
 
 		return {
-			// State
+			searchStore,
 			isOpen,
-			isPending,
-			showPending,
-			searchQuery,
-			currentItems,
+			displayedItems,
 			highlightedItemIndex,
 			searchHeader,
 			resultsContainer,
-			isActionButtonFocused,
-
-			// Icons
-			cdxIconArticleNotFound,
-
-			// Methods
-			onKeydown,
-			updatehighlightedItemIndex,
+			setItemRef,
+			handleNavigationKeydown,
+			// eslint-disable-next-line vue/no-unused-properties
+			open,
+			close,
 			selectResult,
 			handleAction,
-			loadRecentItems,
-			hasHighlightedItemWithActions
+			handleRootKeydown,
+			updatehighlightedItemIndex,
+			cdxIconArticleNotFound,
+			hasHighlightedItemWithActions,
+			itemCount,
+			highlightedItemType,
+			actionFocusActive,
+			firstActionFocusActive,
+			focusedActionIndex,
+			actionCount,
+			handleFocusAction,
+			handleBlurActions
 		};
-	},
-	methods: {
-		/**
-		 * @public
-		 */
-		open() {
-			this.isOpen = true;
-			this.loadRecentItems();
-			this.$nextTick( () => {
-				this.$refs.searchHeader?.focus();
-			} );
-		},
-		close() {
-			this.isOpen = false;
-			this.searchQuery = '';
-			this.currentItems = [];
-			this.highlightedItemIndex = -1;
-		}
 	}
 } );
 </script>

@@ -45,14 +45,53 @@ module.exports = exports = defineComponent( {
 			default: false
 		}
 	},
-	emits: [ 'update:modelValue', 'keydown', 'close' ],
-	setup( props, { emit } ) {
+	emits: [ 'update:modelValue', 'keydown', 'close', 'focus-active-item' ],
+	setup( props, { emit, expose } ) {
 		const searchInputRef = ref( null );
 		const value = computed( () => props.modelValue );
 
-		const onKeydown = ( event ) => {
-			emit( 'keydown', event );
+		const getInputElement = () => searchInputRef.value?.$el?.querySelector( 'input' ) || null;
+
+		const focus = () => {
+			getInputElement()?.focus();
 		};
+
+		const onKeydown = ( event ) => {
+			switch ( event.key ) {
+				case 'ArrowUp':
+				case 'ArrowDown':
+					// Prevent default input cursor movement
+					event.preventDefault();
+					// Emit the event for parent (App.vue) to handle list navigation
+					emit( 'keydown', event );
+					break;
+				case 'ArrowRight': {
+					const inputEl = event.target;
+					// Check if cursor is at the end of the input
+					if ( inputEl.selectionStart === inputEl.value.length ) {
+						// Prevent default cursor movement
+						event.preventDefault();
+						// Signal parent to focus the active list item
+						emit( 'focus-active-item' );
+					}
+					// If not at the end, allow default right arrow behavior within the input
+					// and don't emit 'keydown' to avoid potential double handling.
+					break;
+				}
+				// For other keys like Enter, alphanumeric, etc., let the parent handle or allow default.
+				// We specifically don't emit 'keydown' for ArrowRight when not at the end.
+				default:
+					// Only emit general keydown for keys not specifically handled here
+					// (e.g., Enter for selection, other keys for typing)
+					emit( 'keydown', event );
+					break;
+			}
+		};
+
+		expose( {
+			focus,
+			getInputElement
+		} );
 
 		return {
 			searchInputRef,
@@ -60,14 +99,6 @@ module.exports = exports = defineComponent( {
 			cdxIconSearch,
 			onKeydown
 		};
-	},
-	methods: {
-		/**
-		 * @public
-		 */
-		focus() {
-			this.$refs.searchInputRef?.$el.querySelector( 'input' )?.focus();
-		}
 	}
 } );
 </script>
@@ -77,6 +108,7 @@ module.exports = exports = defineComponent( {
 
 .citizen-command-palette {
 	&__search {
+		position: relative;
 		/* 8px from CdxTextInput */
 		padding: var( --space-sm ) calc( var( --citizen-command-palette-side-padding ) - @spacing-50 );
 	}
@@ -95,6 +127,7 @@ module.exports = exports = defineComponent( {
 
 	&__progress-indicator {
 		position: absolute;
+		bottom: 0;
 		right: 0;
 		left: 0;
 	}

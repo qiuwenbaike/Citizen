@@ -1,5 +1,6 @@
 const
 	Vue = require( 'vue' ),
+	{ createPinia } = require( 'pinia' ),
 	App = require( './components/App.vue' ),
 	config = require( './config.json' );
 
@@ -17,6 +18,9 @@ function initApp() {
 	teleportTarget.appendChild( overlay );
 
 	const app = Vue.createMwApp( App, {}, config );
+
+	const pinia = createPinia();
+	app.use( pinia );
 
 	const commandPalette = app.mount( overlay );
 

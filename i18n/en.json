@@ -85,12 +85,19 @@
 
 	"citizen-command-palette-recent": "Recent",
 
-	"citizen-command-palette-keyhint-select": "Select",
+	"citizen-command-palette-keyhint-enter-select": "Select",
+	"citizen-command-palette-keyhint-enter-open": "Open",
+	"citizen-command-palette-keyhint-enter-search": "Search",
 	"citizen-command-palette-keyhint-navigate": "Navigate",
 	"citizen-command-palette-keyhint-exit": "Exit",
 	"citizen-command-palette-keyhint-actions": "Actions",
 	"citizen-command-palette-keyhint-return": "Return",
 
 	"citizen-command-palette-type-page": "Page",
-	"citizen-command-palette-type-fulltext-search": "Fulltext search"
+	"citizen-command-palette-type-fulltext-search": "Fulltext search",
+	"citizen-command-palette-type-namespace": "Namespace",
+	"citizen-command-palette-type-command": "Command",
+
+	"citizen-command-palette-command-namespace-label": "Search by Namespace",
+	"citizen-command-palette-command-namespace-description": "Type /ns: followed by a namespace name or ID"
 }
