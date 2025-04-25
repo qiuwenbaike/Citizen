@@ -241,13 +241,13 @@ class SkinCitizen extends SkinMustache {
 		}
 
 		// CJK fonts
-		if ( $config->get( 'CitizenEnableCJKFonts' ) === true ) {
+		/* if ( $config->get( 'CitizenEnableCJKFonts' ) === true ) {
 			$options['styles'][] = 'skins.citizen.styles.fonts.cjk';
-		}
+		} */
 
 		// AR fonts
-		if ( $config->get( 'CitizenEnableARFonts' ) === true ) {
+		/* if ( $config->get( 'CitizenEnableARFonts' ) === true ) {
 			$options['styles'][] = 'skins.citizen.styles.fonts.ar';
-		}
+		} */
 	}
 }
