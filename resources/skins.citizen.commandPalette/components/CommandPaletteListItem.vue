@@ -8,11 +8,10 @@ Partially based on the MenuItem component from Codex.
 		:id="id"
 		ref="rootRef"
 		role="option"
+		:aria-selected="highlighted"
 		class="citizen-command-palette-list-item"
 		:class="rootClasses"
 		:data-type="type"
-		@mousemove="onMouseMove"
-		@mouseleave="onMouseLeave"
 		@mousedown.prevent="onMouseDown"
 		@click.prevent="onClick"
 	>
@@ -26,6 +25,7 @@ Partially based on the MenuItem component from Codex.
 			:type-label="typeLabel"
 			:search-query="searchQuery"
 			:url="url"
+			:highlight-query="highlightQuery"
 		></command-palette-list-item-content>
 		<command-palette-list-item-actions
 			ref="actionsRef"
@@ -106,31 +106,29 @@ module.exports = exports = defineComponent( {
 		actions: {
 			type: Array,
 			default: () => []
+		},
+		highlightQuery: {
+			type: Boolean,
+			default: false
+		},
+		source: {
+			type: String,
+			default: undefined
 		}
 	},
 	emits: [
-		'change',
 		'select',
 		'action',
 		'navigate-list',
 		'focus-action',
-		'blur-actions'
+		'blur-actions',
+		'change'
 	],
 	setup( props, { emit, expose } ) {
 		const rootRef = ref( null );
 		const actionsRef = ref( null );
 
 		// --- Item Interaction Logic ---
-		const onMouseMove = () => {
-			if ( !props.highlighted ) {
-				emit( 'change', 'highlighted', true );
-			}
-		};
-
-		const onMouseLeave = () => {
-			emit( 'change', 'highlighted', false );
-		};
-
 		const onMouseDown = ( e ) => {
 			if ( e.button === 0 ) {
 				emit( 'change', 'active', true );
@@ -148,7 +146,8 @@ module.exports = exports = defineComponent( {
 				thumbnailIcon: props.thumbnailIcon,
 				description: props.description,
 				metadata: props.metadata,
-				actions: props.actions
+				actions: props.actions,
+				source: props.source
 			} );
 		};
 
@@ -180,8 +179,6 @@ module.exports = exports = defineComponent( {
 			rootRef,
 			actionsRef,
 			// Event Handlers
-			onMouseMove,
-			onMouseLeave,
 			onMouseDown,
 			onClick,
 			onAction,
@@ -196,8 +193,8 @@ module.exports = exports = defineComponent( {
 <style lang="less">
 .citizen-command-palette-list-item {
 	position: relative;
-	list-style: none;
 	outline: none;
+	list-style: none;
 
 	&--highlighted {
 		cursor: pointer;

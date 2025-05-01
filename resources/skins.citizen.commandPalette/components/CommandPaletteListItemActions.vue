@@ -74,11 +74,23 @@ module.exports = exports = defineComponent( {
 
 		// Handle clicks on action buttons
 		const onActionClick = ( action ) => {
-			emit( 'action', {
+			// Determine the type based on the action details
+			let actionType = 'event'; // Default to 'event' or a specific type if needed
+			if ( action.id === 'dismiss' ) {
+				actionType = 'dismiss';
+			} else if ( action.url ) {
+				actionType = 'navigate';
+			} // Add other conditions if action.id determines other types like 'edit' (that aren't navigation)
+
+			/** @type {import('../types.js').CommandPaletteActionEvent} */
+			const payload = {
+				type: actionType,
 				itemId: props.itemId, // Include parent item ID
 				actionId: action.id,
 				url: action.url
-			} );
+				// Pass any other relevant action properties if needed
+			};
+			emit( 'action', payload );
 		};
 
 		// Expose focus methods for parent component
@@ -104,20 +116,20 @@ module.exports = exports = defineComponent( {
 	&__actions {
 		position: absolute;
 		inset-inline-end: var( --citizen-command-palette-side-padding );
+		top: 0;
 		display: flex;
 		gap: var( --space-xxs );
 		align-items: center;
 		height: 100%;
-		top: 0;
 		padding-left: var( --space-xl );
+		pointer-events: none;
 		background-image: linear-gradient( to right, transparent 0%, transparent 30%, var( --actions-fade-color, inherit ) 70% );
 		opacity: 0;
 		transition: opacity var( --transition-quick );
-		pointer-events: none;
 
 		&--visible {
-			opacity: 1;
 			pointer-events: auto;
+			opacity: 1;
 		}
 	}
 

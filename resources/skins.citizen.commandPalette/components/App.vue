@@ -20,19 +20,20 @@
 			ref="resultsContainer"
 			class="citizen-command-palette__results"
 		>
-			<!-- Show Recent Items (using Presults) when query is empty and not loading -->
+			<!-- Show Presults when query is empty and not loading -->
 			<template v-if="!searchStore.searchQuery && !searchStore.isPending">
 				<command-palette-presults
-					:recent-items="displayedItems"
+					:items="displayedItems"
 					:highlighted-item-index="highlightedItemIndex"
 					:search-query="searchStore.searchQuery"
 					:set-item-ref="setItemRef"
-					@update:highlighted-item-index="updatehighlightedItemIndex"
 					@select="selectResult"
 					@update:recent-items="searchStore.updateQuery( '' )"
 					@navigate-list="handleNavigationKeydown"
 					@focus-action="handleFocusAction"
 					@blur-actions="handleBlurActions"
+					@hover="handleHover"
+					@action="handleAction"
 				></command-palette-presults>
 			</template>
 			<!-- Show Empty State when query exists, not pending, and no results -->
@@ -50,12 +51,12 @@
 					:highlighted-item-index="highlightedItemIndex"
 					:search-query="searchStore.searchQuery"
 					:set-item-ref="setItemRef"
-					@update:highlighted-item-index="updatehighlightedItemIndex"
 					@select="selectResult"
 					@action="handleAction"
 					@navigate-list="handleNavigationKeydown"
 					@focus-action="handleFocusAction"
 					@blur-actions="handleBlurActions"
+					@hover="handleHover"
 				></command-palette-list>
 			</template>
 		</div>
@@ -82,6 +83,7 @@ const CommandPalettePresults = require( './CommandPalettePresults.vue' );
 const CommandPaletteFooter = require( './CommandPaletteFooter.vue' );
 const CommandPaletteHeader = require( './CommandPaletteHeader.vue' );
 const { cdxIconArticleNotFound } = require( '../icons.json' );
+const { CommandPaletteItem, CommandPaletteActionEvent } = require( '../types.js' );
 
 // @vue/component
 module.exports = exports = defineComponent( {
@@ -100,48 +102,46 @@ module.exports = exports = defineComponent( {
 	setup() {
 		const searchStore = useSearchStore();
 		const {
-			displayedItems
+			displayedItems // Now the single unified list
 		} = storeToRefs( searchStore );
 
 		const isOpen = ref( false );
 		const searchHeader = ref( null );
 		const resultsContainer = ref( null );
-		const itemRefs = ref( [] );
+		const itemRefs = ref( new Map() );
 		const actionFocusActive = ref( false );
 		const firstActionFocusActive = ref( false );
 		const focusedActionIndex = ref( -1 );
 
-		const { highlightedItemIndex, handleNavigationKeydown } = useListNavigation( displayedItems, itemRefs );
+		// Computed property for the list that navigation should operate on
+		const navigableItems = computed( () => displayedItems.value );
 
-		const focusInput = () => {
-			searchHeader.value?.focus();
-		};
-
-		const setItemRef = ( el, index ) => {
-			if ( el ) {
-				itemRefs.value[ index ] = el;
-			}
-		};
-
-		const open = () => {
-			isOpen.value = true;
-			searchStore.clearSearch();
-			nextTick( focusInput );
-		};
+		const { highlightedItemIndex, handleNavigationKeydown } = useListNavigation( navigableItems, itemRefs ); // Use navigableItems
 
 		const close = () => {
 			isOpen.value = false;
 		};
 
-		const updatehighlightedItemIndex = ( index ) => {
-			highlightedItemIndex.value = index;
+		const focusInput = () => {
+			searchHeader.value?.focus();
+		};
+
+		// setItemRef now expects the GLOBAL index within navigableItems
+		const setItemRef = ( el, globalIndex ) => {
+			if ( el ) {
+				itemRefs.value.set( globalIndex, el );
+			} else {
+				itemRefs.value.delete( globalIndex );
+			}
 		};
 
 		const hasHighlightedItemWithActions = computed( () => {
-			if ( displayedItems.value.length === 0 || highlightedItemIndex.value < 0 ) {
+			// Use navigableItems which contains the combined list in Presults view
+			if ( navigableItems.value.length === 0 || highlightedItemIndex.value < 0 || highlightedItemIndex.value >= navigableItems.value.length ) {
 				return false;
 			}
-			const highlightedItem = displayedItems.value[ highlightedItemIndex.value ];
+			// Access the correct item using the global index from the combined list
+			const highlightedItem = navigableItems.value[ highlightedItemIndex.value ];
 			return Boolean(
 				highlightedItem &&
 				highlightedItem.actions &&
@@ -149,11 +149,11 @@ module.exports = exports = defineComponent( {
 			);
 		} );
 
-		const itemCount = computed( () => displayedItems.value.length );
+		const itemCount = computed( () => navigableItems.value.length );
 
 		const currentItem = computed( () => {
-			if ( highlightedItemIndex.value >= 0 && displayedItems.value.length > highlightedItemIndex.value ) {
-				return displayedItems.value[ highlightedItemIndex.value ];
+			if ( highlightedItemIndex.value >= 0 && navigableItems.value.length > highlightedItemIndex.value ) {
+				return navigableItems.value[ highlightedItemIndex.value ];
 			}
 			return null;
 		} );
@@ -173,14 +173,31 @@ module.exports = exports = defineComponent( {
 			focusedActionIndex.value = -1;
 		};
 
-		const selectResult = ( result ) => {
-			const selectionAction = searchStore.handleSelection( result );
+		/**
+		 * Updates the highlighted index only if it has changed.
+		 * Prevents unnecessary updates from frequent hover events.
+		 *
+		 * @param {number} newIndex The index received from the hover event.
+		 */
+		const handleHover = ( newIndex ) => {
+			if ( newIndex !== highlightedItemIndex.value ) {
+				highlightedItemIndex.value = newIndex;
+			}
+		};
+
+		/**
+		 * Handles the selection of a result item.
+		 *
+		 * @param {CommandPaletteItem} result The selected item.
+		 */
+		const selectResult = async ( result ) => {
+			const selectionAction = await searchStore.handleSelection( result );
 
 			switch ( selectionAction.action ) {
 				case 'navigate':
 					if ( selectionAction.payload ) {
 						window.location.href = selectionAction.payload;
-						close(); // Close after initiating navigation
+						close();
 					}
 					break;
 				case 'updateQuery':
@@ -189,69 +206,140 @@ module.exports = exports = defineComponent( {
 					break;
 				case 'none':
 				default:
-					// No specific action needed from the component side
-					// Potential improvement: Maybe close if enter is pressed on empty slash command?
 					break;
 			}
 		};
 
+		/**
+		 * Handles custom actions triggered by buttons within list items.
+		 *
+		 * @param {CommandPaletteActionEvent} action The action event payload.
+		 */
 		const handleAction = ( action ) => {
-			if ( action.url ) {
-				window.location.href = action.url;
-				close();
-			} else if ( action.event ) {
-				// Use mw.log for debugging in MediaWiki context if preferred
-				// console.log( 'Action event:', action.event );
+			switch ( action.type ) {
+				case 'dismiss':
+					// Specific to recent items, handled by the store
+					if ( action.itemId !== undefined ) {
+						searchStore.dismissRecentItem( action.itemId );
+					} else {
+						mw.log.warn( '[CommandPalette] Dismiss action missing itemId:', action );
+					}
+					break;
+
+				case 'navigate':
+					// Standard navigation action
+					if ( action.url ) {
+						window.location.href = action.url;
+						close();
+					} else {
+						mw.log.warn( '[CommandPalette] Navigate action missing url:', action );
+					}
+					break;
+
+				case 'event':
+					// Placeholder for custom event handling
+					// console.debug( '[CommandPalette] Action event received:', action.event );
+					break;
+
+				default:
+					// Fallback for unknown or untyped actions
+					mw.log.warn( '[CommandPalette] Unknown or missing action type received:', action );
 			}
 		};
 
+		/**
+		 * Handles the Enter key press within the input.
+		 *
+		 * @param {KeyboardEvent} event The keydown event.
+		 */
+		const handleEnterKey = ( event ) => {
+			event.preventDefault();
+			const selectedItem = highlightedItemIndex.value >= 0 ?
+				navigableItems.value[ highlightedItemIndex.value ] :
+				null;
+			if ( selectedItem ) {
+				selectResult( selectedItem );
+			}
+		};
+
+		/**
+		 * Handles the ArrowRight key press within the input to potentially focus actions.
+		 *
+		 * @param {KeyboardEvent} event The keydown event.
+		 */
+		const handleArrowRightKey = ( event ) => {
+			// Only handle moving focus to actions if the event originated from the input element
+			const inputElement = searchHeader.value?.getInputElement();
+			if ( !inputElement || event.target !== inputElement ) {
+				return;
+			}
+
+			const isCursorAtEnd = inputElement.selectionStart === inputElement.value.length && inputElement.selectionEnd === inputElement.value.length;
+			const currentItemIndex = highlightedItemIndex.value;
+			// Use hasHighlightedItemWithActions computed property directly
+			const itemHasActions = hasHighlightedItemWithActions.value;
+
+			if ( isCursorAtEnd && currentItemIndex >= 0 && itemHasActions ) {
+				const itemComponent = itemRefs.value.get( currentItemIndex );
+				if ( itemComponent?.focusFirstButton ) {
+					event.preventDefault();
+					itemComponent.focusFirstButton();
+				}
+			}
+		};
+
+		/**
+		 * Handles keydown events within the palette root element.
+		 *
+		 * @param {KeyboardEvent} event The keydown event.
+		 */
 		const onKeydown = ( event ) => {
 			// Handle list navigation (Up/Down/Home/End)
 			if ( [ 'ArrowUp', 'ArrowDown', 'Home', 'End' ].includes( event.key ) ) {
 				if ( handleNavigationKeydown( event ) ) {
 					event.preventDefault();
+					// Focus input only if navigation actually occurred and changed highlight
+					// handleNavigationKeydown returns true if it handled the event
 					nextTick( focusInput );
-					return;
+					return; // Navigation handled, exit
 				}
+				event.preventDefault();
 			}
 
-			if ( event.key === 'Enter' ) {
-				event.preventDefault();
-				const selectedItem = highlightedItemIndex.value >= 0 ?
-					displayedItems.value[ highlightedItemIndex.value ] :
-					null;
-				if ( selectedItem ) {
-					selectResult( selectedItem );
-				}
-			} else if ( event.key === 'Escape' ) {
-				close();
-			} else if ( event.key === 'ArrowRight' ) {
-				// Handle moving focus to actions
-				const inputElement = event.target;
-				const isCursorAtEnd = inputElement.selectionStart === inputElement.value.length && inputElement.selectionEnd === inputElement.value.length;
-				const currentItemIndex = highlightedItemIndex.value;
-				const itemHasActions = hasHighlightedItemWithActions.value; // Cache computed value
-
-				if ( isCursorAtEnd && currentItemIndex >= 0 && itemHasActions ) {
-					const itemComponent = itemRefs.value[ currentItemIndex ];
-					if ( itemComponent?.focusFirstButton ) {
-						event.preventDefault();
-						itemComponent.focusFirstButton();
-					}
-				}
+			// Handle specific key actions
+			switch ( event.key ) {
+				case 'Enter':
+					handleEnterKey( event );
+					break;
+				case 'Escape':
+					close();
+					break;
+				case 'ArrowRight':
+					handleArrowRightKey( event );
+					break;
 			}
 		};
 
-		// Watch for changes in displayed items to potentially reset selection
-		watch( displayedItems, ( newItems ) => {
-			// Reset selection to the first item if the provider indicated it
-			if ( searchStore.autoSelectFirst && newItems.length > 0 ) {
-				highlightedItemIndex.value = 0;
-			} else if ( newItems.length === 0 ) {
-				// Reset if list becomes empty
+		// Watch for changes in displayed items to adjust highlighting
+		watch( navigableItems, ( newItems ) => {
+			const previousIndex = highlightedItemIndex.value;
+
+			// Always clear refs as the DOM structure might change
+			itemRefs.value.clear();
+
+			if ( newItems.length === 0 ) {
+				// List is empty, reset highlight
 				highlightedItemIndex.value = -1;
+			} else {
+				// List has items, try to preserve highlight
+				if ( previousIndex < 0 || previousIndex >= newItems.length ) {
+					// Previous index is invalid (was -1 or now out of bounds), reset to first item
+					highlightedItemIndex.value = 0;
+				} else {
+					// Previous index is still valid, keep it (do nothing)
+				}
 			}
-		} );
+		}, { flush: 'post' } );
 
 		// Watch for the store flag indicating input focus is needed
 		watch( () => searchStore.needsInputFocus, ( needsFocus ) => {
@@ -313,22 +401,29 @@ module.exports = exports = defineComponent( {
 			}
 		};
 
+		// Define open before close as close is used within other functions defined later
+		// This function is called externally from init.js
+		const open = () => {
+			isOpen.value = true;
+			// clearSearch now fetches recent items AND related articles
+			searchStore.clearSearch();
+			nextTick( focusInput );
+		};
+
 		return {
 			searchStore,
+			displayedItems, // Pass the unified list down
 			isOpen,
-			displayedItems,
-			highlightedItemIndex,
 			searchHeader,
 			resultsContainer,
 			setItemRef,
 			handleNavigationKeydown,
-			// eslint-disable-next-line vue/no-unused-properties
+			// eslint-disable-next-line vue/no-unused-properties -- Used externally by init.js
 			open,
 			close,
 			selectResult,
 			handleAction,
 			handleRootKeydown,
-			updatehighlightedItemIndex,
 			cdxIconArticleNotFound,
 			hasHighlightedItemWithActions,
 			itemCount,
@@ -338,7 +433,9 @@ module.exports = exports = defineComponent( {
 			focusedActionIndex,
 			actionCount,
 			handleFocusAction,
-			handleBlurActions
+			handleBlurActions,
+			highlightedItemIndex,
+			handleHover
 		};
 	}
 } );

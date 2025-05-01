@@ -24,6 +24,8 @@
 				@navigate-list="( direction ) => $emit( 'navigate-list', direction )"
 				@focus-action="( payload ) => $emit( 'focus-action', payload )"
 				@blur-actions="() => $emit( 'blur-actions' )"
+				@mouseenter="() => $emit( 'hover', index )"
+				@mouseleave="() => $emit( 'hover', -1 )"
 			></command-palette-list-item>
 		</ul>
 	</section>
@@ -62,25 +64,30 @@ module.exports = exports = defineComponent( {
 			default: null
 		}
 	},
-	emits: [ 'update:highlightedItemIndex', 'select', 'action', 'navigate-list', 'focus-action', 'blur-actions' ],
-	setup( props, { emit } ) {
+	emits: [ /* 'update:highlightedItemIndex', */ 'select', 'action', 'navigate-list', 'focus-action', 'blur-actions', 'hover' ],
+	setup( props /* , { emit } */ ) {
 		const listRef = ref( null );
 		const activeItemId = ref( null );
 
 		function getListItemBindings( listItem, index ) {
+			// Determine the query to use for highlighting
+			// Use the specific highlightTerm if provided by the provider (for sub-queries),
+			// otherwise fall back to the main search query.
+			const highlightQuery = listItem.highlightTerm ?? props.searchQuery;
+
 			return {
 				...listItem,
 				active: listItem.id === activeItemId.value,
 				highlighted: index === props.highlightedItemIndex,
-				searchQuery: props.searchQuery,
+				searchQuery: highlightQuery.trim(),
 				id: String( listItem.id )
 			};
 		}
 
-		function onItemChange( itemId, property, value, index ) {
+		function onItemChange( itemId, property, value /* , index */ ) {
 			if ( property === 'highlighted' ) {
 				if ( value ) {
-					emit( 'update:highlightedItemIndex', index );
+					// No longer emitting index update, parent manages it
 				}
 			} else if ( property === 'active' ) {
 				activeItemId.value = value ? itemId : null;

@@ -1,5 +1,5 @@
 const { CommandPaletteItem } = require( '../types.js' );
-const { cdxIconHistory, cdxIconTrash } = require( '../icons.json' );
+const { cdxIconArticleSearch, cdxIconTrash } = require( '../icons.json' );
 const RECENT_ITEMS_KEY = 'skin-citizen-command-palette-recent-items';
 const MAX_RECENT_ITEMS = 5;
 
@@ -40,7 +40,7 @@ function createRecentItems() {
 			id: `citizen-command-palette-result-search-${ mw.util.escapeIdForAttribute( query ) }`,
 			label: query,
 			url: searchUrl,
-			thumbnailIcon: cdxIconHistory
+			thumbnailIcon: cdxIconArticleSearch
 		} );
 	}
 
@@ -57,13 +57,17 @@ function createRecentItems() {
 			icon: cdxIconTrash
 		};
 
-		return items.map( ( item ) => ( {
-			...item,
-			actions: [
-				...( Array.isArray( item.actions ) ? item.actions : [] ),
-				dismissAction
-			]
-		} ) );
+		return items.map( ( item ) => {
+			const actions = Array.isArray( item.actions ) ? [ ...item.actions ] : [];
+			if ( !actions.some( ( action ) => action.id === 'dismiss' ) ) {
+				actions.push( dismissAction );
+			}
+
+			return {
+				...item,
+				actions
+			};
+		} );
 	}
 
 	/**

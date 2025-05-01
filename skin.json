@@ -1,6 +1,6 @@
 {
 	"name": "Citizen",
-	"version": "3.0.0",
+	"version": "3.1.0",
 	"author": [
 		"[https://www.mediawiki.org/wiki/User:Alistair3149 Alistair3149]",
 		"[https://www.mediawiki.org/wiki/User:Octfx Octfx]",
@@ -270,9 +270,11 @@
 				"resources/skins.citizen.commandPalette/searchClients/SearchClientFactory.js",
 				"resources/skins.citizen.commandPalette/searchClients/MwRestSearchClient.js",
 				"resources/skins.citizen.commandPalette/providers/RecentItemsProvider.js",
+				"resources/skins.citizen.commandPalette/providers/RelatedArticlesProvider.js",
 				"resources/skins.citizen.commandPalette/providers/SearchProvider.js",
-				"resources/skins.citizen.commandPalette/providers/SlashCommandProvider.js",
+				"resources/skins.citizen.commandPalette/providers/CommandProvider.js",
 				"resources/skins.citizen.commandPalette/commands/namespace.js",
+				"resources/skins.citizen.commandPalette/commands/action.js",
 				"resources/skins.citizen.commandPalette/components/App.vue",
 				"resources/skins.citizen.commandPalette/components/CommandPaletteEmptyState.vue",
 				"resources/skins.citizen.commandPalette/components/CommandPaletteFooter.vue",
@@ -291,12 +293,14 @@
 						"cdxIconArticles",
 						"cdxIconArticleNotFound",
 						"cdxIconArticleRedirect",
+						"cdxIconArticleSearch",
 						"cdxIconArticlesSearch",
 						"cdxIconCode",
 						"cdxIconEdit",
-						"cdxIconHistory",
 						"cdxIconSearch",
-						"cdxIconTrash"
+						"cdxIconTrash",
+						"cdxIconSpecialPages",
+						"cdxIconPlay"
 					]
 				},
 				{
@@ -311,7 +315,8 @@
 				"action-edit",
 				"search-nonefound",
 				"searchsuggest-search",
-				"citizen-command-palette-recent",
+				"citizen-command-palette-heading-recent",
+				"citizen-command-palette-heading-related",
 				"citizen-command-palette-keyhint-actions",
 				"citizen-command-palette-keyhint-enter-select",
 				"citizen-command-palette-keyhint-enter-open",
@@ -323,8 +328,13 @@
 				"citizen-command-palette-type-fulltext-search",
 				"citizen-command-palette-type-namespace",
 				"citizen-command-palette-type-command",
-				"citizen-command-palette-command-namespace-label",
-				"citizen-command-palette-command-namespace-description"
+				"citizen-command-palette-type-fulltext-search-description",
+				"citizen-command-palette-command-ns-label",
+				"citizen-command-palette-command-ns-description",
+				"citizen-command-palette-type-special-page",
+				"citizen-command-palette-command-action-label",
+				"citizen-command-palette-command-action-description",
+				"citizen-command-palette-type-menu-item"
 			]
 		},
 		"skins.citizen.commandPalette.codex": {
