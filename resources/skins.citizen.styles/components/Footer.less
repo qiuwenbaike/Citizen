@@ -1,7 +1,12 @@
 .citizen-footer {
+	--min-width-footer-link: 10rem;
 	clear: both;
 	padding: var( --space-xxl ) var( --padding-page );
+	// margin-top: 8rem;
+	// // Reserve space for header
+	// margin-bottom: var( --header-size );
 	font-size: var( --font-size-small );
+	line-height: var( --line-height-xx-small );
 	color: var( --color-subtle );
 	background-color: var( --color-surface-2 );
 	border-top: var( --border-width-base ) solid var( --border-color-base );
@@ -9,7 +14,7 @@
 	contain: content;
 
 	&__container {
-		max-width: var( --width-layout--extended );
+		max-width: var( --width-page );
 		margin-inline: auto;
 	}
 
@@ -33,34 +38,22 @@
 	&__content,
 	&__bottom {
 		display: flex;
-		flex-wrap: wrap;
-		gap: var( --space-md );
+		gap: var( --space-md ) var( --space-xxl );
 		justify-content: space-between;
+		padding: var( --space-md ) 0;
+		margin-inline: auto;
 
 		a {
 			font-weight: var( --font-weight-medium );
 		}
 	}
 
-	&__content {
-		padding: var( --space-md );
-	}
-
 	&__bottom {
-		align-items: center;
-		padding: 0 var( --space-md );
 		margin-inline: auto;
-	}
+		border-top: var( --border-width-base ) solid var( --border-color-base );
 
-	&__siteinfo {
-		display: flex;
-		flex-direction: column;
-		gap: var( --space-xs );
-		max-width: 90ch;
-
-		p {
-			margin: 0;
-			line-height: var( --line-height );
+		@media ( min-width: @min-width-breakpoint-tablet ) {
+			align-items: center;
 		}
 	}
 
@@ -69,8 +62,6 @@
 	}
 
 	ul {
-		display: flex;
-		flex-wrap: wrap;
 		margin: 0;
 	}
 
@@ -81,10 +72,22 @@
 
 #footer {
 	&-places {
+		display: flex;
+		flex-grow: 1;
+		align-items: flex-end;
+
+		@media ( max-width: @max-width-breakpoint-tablet ) {
+			margin-inline: calc( -1 * var( --space-md ) );
+		}
+
+		@media ( min-width: @min-width-breakpoint-desktop ) {
+			margin-top: calc( -1 * var( --space-xs ) );
+		}
+
 		ul {
-			display: flex;
-			flex-direction: row;
-			gap: var( --space-xs ) var( --space-md );
+			display: grid;
+			flex-grow: 1;
+			grid-template-columns: repeat( auto-fit, minmax( var( --min-width-footer-link ), 1fr ) );
 		}
 
 		a {
@@ -95,9 +98,9 @@
 	}
 
 	&-icons {
-		display: flex;
-
 		ul {
+			display: flex;
+			flex-wrap: wrap;
 			gap: var( --space-xs );
 		}
 
@@ -117,9 +120,5 @@
 @media ( min-width: @min-width-breakpoint-desktop ) {
 	.citizen-footer {
 		margin-bottom: 0;
-	}
-
-	#footer-sitetitle {
-		font-size: 2rem;
 	}
 }

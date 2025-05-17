@@ -12,7 +12,8 @@ const commandRegistry = new Map(); // Initialize empty, will be populated below
 // Define and load built-in commands
 const builtInCommands = {
 	namespace: require( '../commands/namespace.js' ),
-	action: require( '../commands/action.js' )
+	action: require( '../commands/action.js' ),
+	user: require( '../commands/user.js' )
 };
 
 /** @type {Array<{trigger: string, id: string, lowerTrigger: string}>} */
@@ -90,29 +91,18 @@ function getCommandListItems( filterPrefix ) {
 
 	try {
 		const mappedResults = entries.map( ( [ id, handler ] ) => {
-			let metadata = [];
-			if ( handler.triggers?.length > 0 ) {
-				metadata = handler.triggers.map( ( trigger, index ) => ( {
-					label: trigger,
-					highlightQuery: index === 0 // Highlight only the first trigger
-				} ) );
-			} else {
-				// Fallback if no triggers are defined
-				metadata.push( {
-					label: `/${ id }`,
-					highlightQuery: true
-				} );
-			}
-
 			const item = {
 				id: `citizen-command-palette-item-command-${ id }`,
 				type: 'command',
-				label: handler.label ?? id,
+				label: handler.triggers[ 0 ],
 				description: handler.description,
 				thumbnailIcon: cdxIconCode,
-				value: handler.triggers?.[ 0 ] ?? `/${ id }`,
-				metadata: metadata,
-				source: `command:${ id }`
+				value: handler.triggers[ 0 ],
+				metadata: handler.triggers.length > 1 ?
+					handler.triggers.slice( 1 ).map( ( trigger ) => ( { label: trigger } ) ) :
+					undefined,
+				source: `command:${ id }`,
+				highlightQuery: true
 			};
 			return item;
 		} );
@@ -136,6 +126,7 @@ module.exports = {
 	id: 'command',
 	isAsync: true, // Although some commands might be sync, the handler resolution can be async
 	debounceMs: 0,
+	keepStaleResultsOnQueryChange: true,
 
 	/**
 	 * Determines if this provider should handle the current query.

@@ -39,7 +39,9 @@
 	--toolbar-size: 2.5rem;
 	// Used to offset sticky elements with sticky header
 	// This is overriden by inline styles in the html element when sticky header is active
-	--height-sticky-header: 0;
+	// Need the unit for calc() (#1058)
+	// stylelint-disable-next-line length-zero-no-unit
+	--height-sticky-header: 0px;
 	// Width or height of citizen-header, depending on the orientation
 	--header-size: @header-size;
 	// Max-height allowed for header card, 20vh is left for closing affordnance
@@ -52,6 +54,8 @@
 	--width-layout--extended: calc( var( --width-layout ) * 1.5 );
 	// Width of the table of contents
 	--width-toc: @width-toc;
+	/// Width of the page
+	--width-page: @width-layout;
 	// Side padding used for the page
 	// This is set in px to enforce safe area on a page
 	--padding-page: @padding-page;
