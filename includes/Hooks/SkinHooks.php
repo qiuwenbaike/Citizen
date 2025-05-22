@@ -27,9 +27,7 @@ namespace MediaWiki\Skins\Citizen\Hooks;
 
 use MediaWiki\Hook\SidebarBeforeOutputHook;
 use MediaWiki\Hook\SkinBuildSidebarHook;
-use MediaWiki\Hook\SkinEditSectionLinksHook;
 use MediaWiki\Html\Html;
-use MediaWiki\Language\Language;
 use MediaWiki\Output\Hook\BeforePageDisplayHook;
 use MediaWiki\Output\Hook\OutputPageAfterGetHeadLinksArrayHook;
 use MediaWiki\Output\OutputPage;
@@ -38,7 +36,6 @@ use MediaWiki\ResourceLoader as RL;
 use MediaWiki\Skin\SkinComponentUtils;
 use MediaWiki\Skins\Citizen\GetConfigTrait;
 use MediaWiki\Skins\Hook\SkinPageReadyConfigHook;
-use MediaWiki\Title\Title;
 use Skin;
 use SkinTemplate;
 
@@ -50,7 +47,6 @@ class SkinHooks implements
 	OutputPageAfterGetHeadLinksArrayHook,
 	SidebarBeforeOutputHook,
 	SkinBuildSidebarHook,
-	SkinEditSectionLinksHook,
 	SkinPageReadyConfigHook
 {
 	use GetConfigTrait;
@@ -163,42 +159,6 @@ class SkinHooks implements
 
 		foreach ( $bar as $key => $item ) {
 			self::addIconsToMenuItems( $bar, $key );
-		}
-	}
-
-	/**
-	 * Modify editsection links
-	 *
-	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/SkinEditSectionLinks
-	 * @param Skin $skin
-	 * @param Title $title
-	 * @param string $section
-	 * @param string $sectionTitle
-	 * @param array &$result
-	 * @param Language $lang
-	 */
-	public function onSkinEditSectionLinks( $skin, $title, $section, $sectionTitle, &$result, $lang ) {
-		// Be extra safe because it might be active on other skins with caching
-		if ( $skin->getSkinName() !== 'citizen' || !$result ) {
-			return;
-		}
-
-		// Add icon to edit section link
-		// If VE button is present, use wikiText icon
-		if ( isset( $result['veeditsection'] ) ) {
-			self::appendClassToItem(
-				$result['veeditsection']['attribs']['class'],
-				'citizen-ui-icon mw-ui-icon-wikimedia-edit'
-			);
-			self::appendClassToItem(
-				$result['editsection']['attribs']['class'],
-				'citizen-ui-icon mw-ui-icon-wikimedia-wikiText'
-			);
-		} elseif ( isset( $result['editsection'] ) ) {
-			self::appendClassToItem(
-				$result['editsection']['attribs']['class'],
-				'citizen-ui-icon mw-ui-icon-wikimedia-edit'
-			);
 		}
 	}
 

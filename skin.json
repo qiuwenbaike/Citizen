@@ -1,6 +1,6 @@
 {
 	"name": "Citizen",
-	"version": "3.1.0",
+	"version": "3.2.0",
 	"author": [
 		"[https://www.mediawiki.org/wiki/User:Alistair3149 Alistair3149]",
 		"[https://www.mediawiki.org/wiki/User:Octfx Octfx]",
@@ -34,6 +34,7 @@
 					"name": "citizen",
 					"responsive": true,
 					"supportsMwHeading": true,
+					"templateSectionLinks": "SectionLinks",
 					"toc": true,
 					"wrapSiteNotice": true,
 					"link": {
@@ -55,6 +56,7 @@
 					],
 					"styles": [
 						"skins.citizen.styles",
+						"skins.citizen.codex.styles",
 						"skins.citizen.icons",
 						"skins.citizen.icons.customize"
 					],
@@ -106,7 +108,6 @@
 		"OutputPageAfterGetHeadLinksArray": "SkinHooks",
 		"SidebarBeforeOutput": "SkinHooks",
 		"SkinBuildSidebar": "SkinHooks",
-		"SkinEditSectionLinks": "SkinHooks",
 		"SkinPageReadyConfig": "SkinHooks"
 	},
 	"ResourceModules": {
@@ -122,6 +123,16 @@
 			},
 			"styles": [
 				"resources/skins.citizen.styles/skin.less"
+			]
+		},
+		"skins.citizen.codex.styles": {
+			"class": "MediaWiki\\ResourceLoader\\CodexModule",
+			"codexStyleOnly": true,
+			"codexComponents": [
+				"CdxButton"
+			],
+			"styles": [
+				"resources/skins.citizen.codex.styles/CdxButton.less"
 			]
 		},
 		"skins.citizen.styles.fonts.cjk": {
@@ -266,6 +277,7 @@
 				"resources/skins.citizen.commandPalette/composables/useListNavigation.js",
 				"resources/skins.citizen.commandPalette/composables/useActionNavigation.js",
 				"resources/skins.citizen.commandPalette/utils/fetch.js",
+				"resources/skins.citizen.commandPalette/utils/providerActions.js",
 				"resources/skins.citizen.commandPalette/stores/searchStore.js",
 				"resources/skins.citizen.commandPalette/services/recentItems.js",
 				"resources/skins.citizen.commandPalette/searchClients/SearchClientFactory.js",
@@ -335,6 +347,11 @@
 				"citizen-command-palette-queryaction-fulltext-search-description",
 				"citizen-command-palette-queryaction-media-search-description",
 				"citizen-command-palette-queryaction-page-edit-description",
+				"citizen-command-palette-tip-commands",
+				"citizen-command-palette-tip-users",
+				"citizen-command-palette-tip-namespace",
+				"citizen-command-palette-tip-templates",
+				"citizen-command-palette-tip-actions",
 				"citizen-command-palette-type-action",
 				"citizen-command-palette-type-command",
 				"citizen-command-palette-type-menu-item",
@@ -823,8 +840,8 @@
 			"description": "@var The minimum number of headings required to collapse all headings in the sticky table of contents by default."
 		},
 		"EnableCommandPalette": {
-			"value": false,
-			"description": "[EXPERIMENTAL] Enables or disable the command palette. Command palette is in active development and may not work as expected.",
+			"value": true,
+			"description": "Enables or disable the command palette. Disable to use the old search module.",
 			"descriptionmsg": "citizen-config-enablecommandpalette",
 			"public": true
 		}
