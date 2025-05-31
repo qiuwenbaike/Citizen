@@ -43,6 +43,7 @@ blockquote {
 	font-style: italic;
 	/* NOTE: This only works for Chromium browsers for now */
 	text-wrap: pretty;
+	.mixin-citizen-font-styles( 'body' );
 
 	&:lang( ja ),
 	&:lang( ko ),
@@ -52,14 +53,18 @@ blockquote {
 	}
 
 	cite {
-		font-size: var( --font-size-x-small );
 		font-style: normal;
+		.mixin-citizen-font-styles( 'small' );
 	}
 }
 
-sub,
-sup {
-	font-size: 80%;
+figcaption {
+	color: var( --color-subtle );
+	.mixin-citizen-font-styles( 'small' );
+}
+
+small {
+	.mixin-citizen-font-styles( 'small' );
 }
 
 // em {
@@ -85,5 +90,12 @@ sup {
 
 .citizen-body {
 	font-size: var( --font-size-medium );
-	line-height: var( --line-height );
+	line-height: var( --line-height-content );
+
+	/* CJK languages need increased line-height for readability */
+	&:lang( ja ),
+	&:lang( ko ),
+	&:lang( zh ) {
+		--line-height-content: 1.75;
+	}
 }

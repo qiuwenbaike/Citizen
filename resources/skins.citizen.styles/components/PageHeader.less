@@ -34,6 +34,7 @@
 
 .firstHeading {
 	margin-block: 0;
+	line-height: 2rem; /* Reduced line height to make the heading more compact */
 	word-break: break-word;
 	overflow-wrap: break-word;
 }
@@ -49,7 +50,7 @@
 	}
 
 	&-parenthesis {
-		font-size: var( --font-size-x-large );
 		color: var( --color-subtle );
+		.mixin-citizen-font-styles( 'heading-4' );
 	}
 }
