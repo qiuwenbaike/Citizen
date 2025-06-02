@@ -1,0 +1,26 @@
+/*
+ * Citizen
+ *
+ * SkinStyles for Extension:Thanks
+ * Module: ext.thanks
+ * Version: REL1_43
+*/
+
+@import '../../../resources/mixins.less';
+
+.mw-thanks-thank-link {
+	.cdx-mixin-link-base();
+	color: var( --color-link );
+
+	&:hover {
+		color: var( --color-link--hover );
+	}
+
+	&:active {
+		color: var( --color-link--active );
+	}
+
+	&:visited:hover {
+		color: var( --color-visited--hover );
+	}
+}
