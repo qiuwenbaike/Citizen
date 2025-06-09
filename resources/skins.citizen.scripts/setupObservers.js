@@ -1,7 +1,6 @@
 // Adopted from Vector 2022
 const
 	scrollObserver = require( './scrollObserver.js' ),
-	resizeObserver = require( './resizeObserver.js' ),
 	initSectionObserver = require( './sectionObserver.js' ),
 	stickyHeader = require( './stickyHeader.js' ),
 	initTableOfContents = require( './tableOfContents.js' ),
@@ -187,14 +186,12 @@ const main = () => {
 
 	const
 		stickyHeaderElement = document.getElementById( stickyHeader.STICKY_HEADER_ID ),
-		stickyIntersection = document.getElementById( 'citizen-page-header-sticky-sentinel' ),
-		stickyPlaceholder = document.getElementById( stickyHeader.STICKY_HEADER_PLACEHOLDER_ID );
+		stickyIntersection = document.getElementById( 'citizen-page-header-sticky-sentinel' );
 
 	// eslint-disable-next-line es-x/no-optional-chaining
 	const shouldStickyHeader = getComputedStyle( stickyIntersection )?.getPropertyValue( 'display' ) !== 'none';
 	const veActivated = document.documentElement.classList.contains( 've-activated' );
 	const isStickyHeaderAllowed = !!stickyHeaderElement &&
-		!!stickyPlaceholder &&
 		!!stickyIntersection &&
 		shouldStickyHeader &&
 		!veActivated;
@@ -211,13 +208,17 @@ const main = () => {
 		10
 	);
 
+	if ( isStickyHeaderAllowed ) {
+		stickyHeader.init( stickyHeaderElement );
+	}
+
 	const resumeStickyHeader = () => {
 		if (
 			isStickyHeaderAllowed &&
 			!document.body.classList.contains( stickyHeader.STICKY_HEADER_VISIBLE_CLASS ) &&
 			document.body.classList.contains( PAGE_TITLE_INTERSECTION_CLASS )
 		) {
-			stickyHeader.show( stickyHeaderElement, stickyPlaceholder );
+			stickyHeader.show( stickyHeaderElement );
 			if ( document.documentElement.classList.contains( 'citizen-feature-autohide-navigation-clientpref-1' ) ) {
 				scrollDirectionObserver.resume();
 			}
@@ -226,7 +227,7 @@ const main = () => {
 
 	const pauseStickyHeader = () => {
 		if ( document.body.classList.contains( stickyHeader.STICKY_HEADER_VISIBLE_CLASS ) ) {
-			stickyHeader.hide( stickyHeaderElement, stickyPlaceholder );
+			stickyHeader.hide( stickyHeaderElement );
 			scrollDirectionObserver.pause();
 		}
 	};
@@ -243,39 +244,6 @@ const main = () => {
 	);
 
 	pageHeaderObserver.observe( stickyIntersection );
-
-	// Initialize var
-	let bodyWidth = 0;
-	const bodyObserver = resizeObserver.initResizeObserver(
-		// onResize
-		() => {},
-		// onResizeStart
-		( entry ) => {
-			// eslint-disable-next-line es-x/no-optional-chaining
-			bodyWidth = entry.borderBoxSize?.[ 0 ].inlineSize;
-			// Disable all CSS animation during resize
-			if ( document.documentElement.classList.contains( 'citizen-animations-ready' ) ) {
-				document.documentElement.classList.remove( 'citizen-animations-ready' );
-			}
-		},
-		// onResizeEnd
-		( entry ) => {
-			// eslint-disable-next-line es-x/no-optional-chaining
-			const newBodyWidth = entry.borderBoxSize?.[ 0 ].inlineSize;
-			const shouldRecalcStickyHeader =
-				document.body.classList.contains( PAGE_TITLE_INTERSECTION_CLASS ) &&
-				typeof newBodyWidth === 'number' &&
-				bodyWidth !== newBodyWidth;
-
-			// Enable CSS animation after resize is finished
-			document.documentElement.classList.add( 'citizen-animations-ready' );
-			// Recalculate sticky header height at the end of the resize
-			if ( shouldRecalcStickyHeader ) {
-				resumeStickyHeader();
-			}
-		}
-	);
-	bodyObserver.observe( document.body );
 
 	mw.hook( 've.activationStart' ).add( () => {
 		pauseStickyHeader();
