@@ -30,9 +30,9 @@
 		transition-duration: var( --transition-duration-medium );
 		transition-property: transform, visibility;
 
-		@media ( min-width: @min-width-breakpoint-desktop ) {
-			margin-left: var( --header-size );
-		}
+		// @media ( min-width: @min-width-breakpoint-desktop ) {
+		// 	margin-left: var( --header-size );
+		// }
 	}
 
 	&-inner {
@@ -40,7 +40,7 @@
 		gap: var( --space-md );
 		align-items: center;
 		justify-content: space-between;
-		max-width: var( --width-page );
+		max-width: var( --width-layout );
 		min-height: 3.25rem;
 		padding-block: var( --space-xxs );
 		margin-inline: auto;
@@ -108,6 +108,7 @@
 	}
 
 	&-page-title {
+		font-family: var( --font-family-serif );
 		font-size: var( --font-size-large );
 		font-weight: var( --font-weight-semi-bold );
 		color: var( --color-emphasized );
@@ -158,7 +159,7 @@
 	.citizen-sticky-header {
 		&-container {
 			visibility: visible;
-			transform: none;
+			transform: translateY( 100% );
 		}
 	}
 
