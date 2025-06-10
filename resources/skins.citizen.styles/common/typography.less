@@ -37,8 +37,6 @@ cite {
 
 blockquote {
 	font-style: italic;
-	/* NOTE: This only works for Chromium browsers for now */
-	text-wrap: pretty;
 	.mixin-citizen-font-styles( 'body' );
 
 	&:lang( ja ),
@@ -46,6 +44,10 @@ blockquote {
 	&:lang( mn ),
 	&:lang( zh ) {
 		font-style: normal;
+	}
+
+	@supports ( text-wrap: pretty ) {
+		text-wrap: pretty;
 	}
 
 	cite {
