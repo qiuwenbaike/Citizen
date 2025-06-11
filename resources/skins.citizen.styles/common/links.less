@@ -2,16 +2,14 @@
 
 a {
 	text-decoration: none;
-}
 
-// T373989
-a:where( :not( [ role='button' ] ) ) {
+	// T373989
 	// See https://github.com/wikimedia/mediawiki/blob/master/resources/lib/codex/mixins/link.less
 	.cdx-mixin-link-base();
 	.citizen-cdx-mixin-link-base-overrides();
 }
 
-a:where( .new:not( [ role='button' ] ) ) {
+a.new {
 	.cdx-mixin-link-red();
 }
 
