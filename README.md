@@ -134,7 +134,6 @@ Name | Version
 [Graph](https://www.mediawiki.org/wiki/Extension:Graph) | N/A
 [Interwiki](https://www.mediawiki.org/wiki/Extension:Interwiki) | REL1_35 `a65a18e`
 [Lingo](https://www.mediawiki.org/wiki/Extension:Lingo) | REL1_35 `e948775`
-[Math](https://www.mediawiki.org/wiki/Extension:Math) | REL1_35 `b7a7939`
 [ManageWiki](https://www.mediawiki.org/wiki/Extension:ManageWiki) | master `e626a9f`
 [MediaSearch](https://www.mediawiki.org/wiki/Extension:MediaSearch) | REL1_39 `e0aa7bb`
 [MsUpload](https://www.mediawiki.org/wiki/Extension:MsUpload) | REL1_35 `32eb420`
@@ -148,7 +147,7 @@ Name | Version
 [Score](https://www.mediawiki.org/wiki/Extension:Score) | REL1_39 `0a66cef`
 [Scribunto](https://www.mediawiki.org/wiki/Extension:Scribunto) | REL1_39 `ebb91f2`
 [SearchDigest](https://www.mediawiki.org/wiki/Extension:SearchDigest) | Master `ddd4665`
-[Semantic MediaWiki](https://www.mediawiki.org/wiki/Extension:Semantic_MediaWiki) | 4.0.2 `0fcdfce`
+[Semantic MediaWiki](https://www.mediawiki.org/wiki/Extension:Semantic_MediaWiki) | 5.0.2
 [Semantic Result Formats](https://www.mediawiki.org/wiki/Extension:Semantic_Result_Formats) | 5.0.0
 [SimpleTooltip](https://www.mediawiki.org/wiki/Extension:SimpleTooltip) | N/A
 [SmiteSpam](https://www.mediawiki.org/wiki/Extension:SmiteSpam) | REL1_39 `c81b04b`
@@ -169,7 +168,6 @@ Name | Version
 [VisualEditor](https://www.mediawiki.org/wiki/Extension:VisualEditor) | REL1_43
 [Wikibase](https://www.mediawiki.org/wiki/Extension:Wikibase) | REL1_35 `7bb503b`
 [WikiEditor](https://www.mediawiki.org/wiki/Extension:WikiEditor) | REL1_43
-[WikiHiero](https://www.mediawiki.org/wiki/Extension:WikiHiero) | REL1_39 `3a2be51`
 [WSSearchFront](https://www.mediawiki.org/wiki/Extension:WSSearchFront) | 3.5.4 `c27ebcb5`
 
 Some of the field are tagged as N/A because the information was not tracked before.
