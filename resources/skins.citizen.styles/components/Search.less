@@ -34,8 +34,14 @@
 		content-visibility: visible;
 	}
 
-	.citizen-dropdown-details[ open ] + .citizen-menu__card > .citizen-search__form {
-		transition: none; /* Do not animate typeahead since it looks weird */
+	.citizen-dropdown-details {
+		+ .citizen-menu__card {
+			position: fixed;
+		}
+
+		&[ open ] + .citizen-menu__card > .citizen-search__form {
+			transition: none; /* Do not animate typeahead since it looks weird */
+		}
 	}
 
 	&__formButton,
