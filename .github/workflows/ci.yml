@@ -5,9 +5,10 @@ on:
     branches:
       - "main"
   pull_request:
-    branches-ignore:
-      - "dependabot/**"
-      - "release-please--branches--**"
+    branches:
+      - "**"
+      - "!dependabot/**"
+      - "!release-please--branches--**"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -32,7 +33,7 @@ jobs:
         run: |
           composer validate
           composer install --prefer-dist --no-progress
-          npm install --save-dev
+          npm ci
 
       # Check for changed files
       - name: Check for PHP changes
@@ -126,8 +127,12 @@ jobs:
       matrix:
         include:
           - mw: "REL1_43"
-            php: 8.3
+            php: 8.2
             coverage: xdebug
+            experimental: false
+          - mw: "REL1_44"
+            php: 8.3
+            coverage: none
             experimental: false
           - mw: "master"
             php: 8.4
