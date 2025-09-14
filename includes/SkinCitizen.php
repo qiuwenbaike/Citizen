@@ -123,12 +123,17 @@ class SkinCitizen extends SkinMustache {
 		$user = $this->getUser();
 		$pageLang = $title->getPageLanguage();
 
+		$sidebar = $parentData['data-portlets-sidebar'];
+		$pageToolsMenu = [];
+
+		$this->extractPageToolsFromSidebar( $sidebar, $pageToolsMenu );
+
 		$components = [
 			'data-footer' => new CitizenComponentFooter(
 				$localizer,
 				$parentData['data-footer']
 			),
-			'data-main-menu' => new CitizenComponentMainMenu( $parentData['data-portlets-sidebar'] ),
+			'data-main-menu' => new CitizenComponentMainMenu( $sidebar ),
 			'data-page-footer' => new CitizenComponentPageFooter(
 				$localizer,
 				$parentData['data-footer']['data-info']
@@ -157,7 +162,7 @@ class SkinCitizen extends SkinMustache {
 				$user,
 				$this->permissionManager,
 				count( $this->getLanguagesCached() ),
-				$parentData['data-portlets-sidebar'],
+				$pageToolsMenu,
 				// These portlets can be unindexed
 				$parentData['data-portlets']['data-languages'] ?? [],
 				$parentData['data-portlets']['data-variants'] ?? []
@@ -214,6 +219,31 @@ class SkinCitizen extends SkinMustache {
 	}
 
 	/**
+	 * Pulls the page tools menu out of $sidebar into $pageToolsMenu
+	 * From Vector 2022
+	 *
+	 * @param array &$sidebar
+	 * @param array &$pageToolsMenu
+	 */
+	private function extractPageToolsFromSidebar( array &$sidebar, array &$pageToolsMenu ) {
+		$restPortlets = $sidebar[ 'array-portlets-rest' ] ?? [];
+		$toolboxMenuIndex = array_search(
+			CitizenComponentPageTools::TOOLBOX_ID,
+			array_column(
+				$restPortlets,
+				'id'
+			)
+		);
+
+		if ( $toolboxMenuIndex !== false ) {
+			// Splice removes the toolbox menu from the $restPortlets array
+			// and current returns the first value of array_splice, i.e. the $toolbox menu data.
+			$pageToolsMenu = array_splice( $restPortlets, $toolboxMenuIndex, 1 );
+			$sidebar['array-portlets-rest'] = $restPortlets;
+		}
+	}
+
+	/**
 	 * Check whether Visual Editor Tab Position is first
 	 * From Vector 2022
 	 */
@@ -253,23 +283,6 @@ class SkinCitizen extends SkinMustache {
 	 */
 	private function prepareStickyHeaderTagline( string $tagline ): string {
 		return preg_replace( '/<a\s+href="([^"]+)"[^>]*>(.*?)<\/a>/', '<span>$2</span>', $tagline );
-	}
-
-	/**
-	 * @inheritDoc
-	 *
-	 * Manually disable some site-wide tools in TOOLBOX
-	 * They are re-added in the drawer
-	 *
-	 * TODO: Remove this hack when Desktop Improvements separate page and site tools
-	 */
-	protected function buildNavUrls(): array {
-		$urls = parent::buildNavUrls();
-
-		$urls['upload'] = false;
-		$urls['specialpages'] = false;
-
-		return $urls;
 	}
 
 	/**
