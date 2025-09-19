@@ -142,7 +142,8 @@ class SkinHooks implements
 			: preg_replace( '/^p-/', '', $customSiteToolsMenuId );
 
 		// Do not override specialpages if it already exists (#1116)
-		if ( !isset( $bar[$siteToolsMenuId]['specialpages'] ) ) {
+		// TODO: Revisit in next LTS release (T333211)
+		if ( version_compare( MW_VERSION, '1.44', '<' ) ) {
 			$bar[$siteToolsMenuId]['specialpages'] = [
 				'text'  => $skin->msg( 'specialpages' ),
 				'href'  => SkinComponentUtils::makeSpecialUrl( 'Specialpages' ),
