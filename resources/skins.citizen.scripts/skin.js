@@ -66,6 +66,20 @@ function initBodyContent( bodyContent ) {
 }
 
 /**
+ * Initialize preferences module when the preferences button is first clicked
+ *
+ * @return {void}
+ */
+function initPreferences() {
+	document.getElementById( 'citizen-preferences-details' ).addEventListener( 'toggle', () => {
+		mw.loader.load( 'skins.citizen.preferences' );
+	},
+	{
+		once: true
+	} );
+}
+
+/**
  * @param {Window} window
  * @return {void}
  */
@@ -95,7 +109,7 @@ function main( window ) {
 	/*
 	// Preference module
 	if ( config.wgCitizenEnablePreferences === true ) {
-		mw.loader.load( 'skins.citizen.preferences' );
+		initPreferences();
 	}
 	 */
 

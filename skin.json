@@ -1,6 +1,6 @@
 {
 	"name": "Citizen",
-	"version": "3.6.0",
+	"version": "3.7.0",
 	"author": [
 		"[https://www.mediawiki.org/wiki/User:Alistair3149 Alistair3149]",
 		"[https://www.mediawiki.org/wiki/User:Octfx Octfx]",
@@ -421,7 +421,6 @@
 				"edit",
 				"editLock",
 				"ellipsis",
-				"first",
 				"help",
 				"history",
 				"home",
@@ -859,6 +858,12 @@
 			"value": true,
 			"description": "Enables or disable the command palette. Disable to use the old search module.",
 			"descriptionmsg": "citizen-config-enablecommandpalette",
+			"public": true
+		},
+		"HeaderPosition": {
+			"value": "left",
+			"description": "Position of the header on the desktop layout. Possible values: 'left', 'right', 'top' and 'bottom'",
+			"descriptionmsg": "citizen-config-headerposition",
 			"public": true
 		}
 	},

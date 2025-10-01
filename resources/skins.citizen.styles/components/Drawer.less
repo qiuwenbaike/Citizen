@@ -2,6 +2,14 @@
 	&__card {
 		.mixin-citizen-header-card( start );
 		transform-origin: var( --transform-origin-offset-start ) var( --transform-origin-offset-start );
+
+		@media ( min-width: @min-width-breakpoint-desktop ) {
+			top: 100%;
+			right: unset;
+			bottom: unset;
+			left: 0;
+			transform-origin: var( --transform-origin-offset-start ) var( --transform-origin-offset-start );
+		}
 	}
 
 	&__header {
@@ -10,7 +18,7 @@
 		align-items: center;
 		justify-content: center;
 		padding: var( --space-md );
-		border-bottom: var( --border-width-base ) solid var( --border-color-base );
+		border-bottom: var( --border-subtle );
 	}
 
 	&__logo {

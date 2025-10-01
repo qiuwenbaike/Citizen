@@ -2,12 +2,6 @@
 	--citizen-toc-toggle-size: ~'calc( var( --line-height-small ) + var( --space-xs ) * 2 )';
 	.mixin-citizen-font-styles( 'small' );
 
-	&-top {
-		.citizen-ui-icon {
-			transform: rotate( 90deg );
-		}
-	}
-
 	&-contents,
 	&-list {
 		margin: 0 0 0 var( --space-xs );
@@ -161,7 +155,7 @@
 @media ( max-width: ( @max-width-breakpoint-tablet ) ) {
 	.citizen-toc {
 		position: fixed;
-		bottom: ~'calc( var( --header-size ) + max( env( safe-area-inset-bottom ), var( --space-xs ) ) )';
+		bottom: ~'calc( var( --header-size-block-end ) + max( env( safe-area-inset-bottom ), var( --space-xs ) ) )';
 		left: 0;
 		z-index: @z-index-sticky; // Keep ToC above sticky header and page action, but below site header
 		pointer-events: none; // HACK: Make background clickable
@@ -218,8 +212,8 @@
 	.citizen-toc {
 		position: -webkit-sticky;
 		position: sticky;
-		top: ~'calc( 2.5 * var( --height-sticky-header ) )';
-		max-height: ~'calc( 100vh - 2.5 * var( --height-sticky-header ) )';
+		top: var( --header-offset-block-start );
+		max-height: ~'calc( 100vh - var( --header-offset-block-start ) )';
 		padding: var( --space-xs ) 0;
 		overflow-y: auto;
 		overscroll-behavior: contain;
@@ -234,10 +228,6 @@
 			border-radius: 0;
 			box-shadow: none;
 			transform: none;
-
-			.citizen-menu__card-backdrop {
-				display: none;
-			}
 
 			.citizen-menu__card-content {
 				opacity: 1;

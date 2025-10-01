@@ -17,15 +17,17 @@
 
 .skin-citizen {
 	.mw-echo-ui-notificationBadgeButtonPopupWidget-popup {
-		// top: unset !important;
-		// bottom: calc( var( --header-size ) + env( safe-area-inset-bottom ) ) !important;
+		top: unset !important;
+		bottom: calc( var( --header-size-block-end ) + env( safe-area-inset-bottom ) ) !important;
 		margin: var( --space-xs );
 		box-shadow: var( --box-shadow-large );
 
-		// @media ( min-width: @min-width-breakpoint-desktop ) {
-		// 	bottom: 0 !important;
-		// 	left: var( --header-size ) !important;
-		// }
+		@media ( min-width: @min-width-breakpoint-desktop ) {
+			top: var( --header-size-block-start ) !important;
+			right: 0 !important;
+			bottom: unset !important;
+			left: unset !important;
+		}
 
 		.oo-ui-popupWidget-body {
 			height: auto !important;
@@ -83,6 +85,11 @@
 	top: unset;
 	bottom: 0;
 	z-index: @z-index-overlay; // Higher than header
+
+	@media ( min-width: @min-width-breakpoint-desktop ) {
+		top: 0;
+		bottom: unset;
+	}
 
 	// Add dismiss affordnance backdrop
 	@media ( max-width: @max-width-breakpoint-tablet ) {
