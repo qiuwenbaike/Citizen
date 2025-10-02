@@ -70,14 +70,14 @@ function initBodyContent( bodyContent ) {
  *
  * @return {void}
  */
-function initPreferences() {
+/* function initPreferences() {
 	document.getElementById( 'citizen-preferences-details' ).addEventListener( 'toggle', () => {
 		mw.loader.load( 'skins.citizen.preferences' );
 	},
 	{
 		once: true
 	} );
-}
+} */
 
 /**
  * @param {Window} window
