@@ -41,11 +41,13 @@ final class Theme extends Partial {
 	 * If the theme is set to auto, the theme switcher script will be added
 	 */
 	public function setSkinTheme(): void {
+		/*
 		// Set theme to site theme
 		$theme = $this->getConfigValue( 'CitizenThemeDefault' ) ?? 'auto';
 		// Add HTML class based on theme set
 		if ( CLIENTPREFS_THEME_MAP[ $theme ] ) {
 			$this->out->addHtmlClasses( 'skin-theme-clientpref-' . CLIENTPREFS_THEME_MAP[ $theme ] );
 		}
+		*/
 	}
 }
