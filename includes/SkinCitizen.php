@@ -40,6 +40,7 @@ use MediaWiki\Skins\Citizen\Components\CitizenComponentSiteStats;
 use MediaWiki\Skins\Citizen\Components\CitizenComponentStickyHeader;
 use MediaWiki\Skins\Citizen\Components\CitizenComponentUserInfo;
 use MediaWiki\Skins\Citizen\Partials\Metadata;
+use MediaWiki\Skins\Citizen\Partials\Theme;
 use MediaWiki\Title\Title;
 use MediaWiki\User\UserFactory;
 use MediaWiki\User\UserGroupManager;
@@ -309,7 +310,7 @@ class SkinCitizen extends SkinMustache {
 		$metadata->addMetadata();
 
 		// Add theme handler
-		$skinTheme->setSkinTheme();
+		/* $skinTheme->setSkinTheme(); */
 
 		// Clientprefs feature handling
 		$this->addClientPrefFeature( 'citizen-feature-autohide-navigation', '1' );
