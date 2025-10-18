@@ -62,7 +62,7 @@
 		border: 0.5px solid var( --border-color-base );
 	}
 
-	/* Add border separator between caption, tr, thead, tbody, tfoot */
+	// Add border separator between caption, tr, thead, tbody, tfoot
 	> :where( caption, tr, thead, tbody, tfoot ):not( [ hidden ] ) ~ :where( caption, tr, thead, tbody, tfoot ):not( [ hidden ] ),
 	> :where( thead, tbody, tfoot ) > :where( tr, thead, tbody, tfoot ):not( [ hidden ] ) ~ :where( tr, thead, tbody, tfoot ):not( [ hidden ] ) {
 		border-top: var( --border-width-base ) solid var( --border-color-base );
